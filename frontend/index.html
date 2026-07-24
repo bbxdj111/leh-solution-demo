@@ -130,6 +130,50 @@
         </div>
     </div>
 
+    <!-- Modal 3: Worker Hotel Picker -->
+    <div id="hotel-picker-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center hidden">
+        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-md w-full mx-4 shadow-2xl relative">
+            <div class="text-center mb-5">
+                <div class="w-12 h-12 bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl">
+                    <i class="fa-solid fa-hotel"></i>
+                </div>
+                <h3 class="text-base font-bold text-white">🏨 Выбор отеля для проживания</h3>
+                <p class="text-xs text-slate-400 mt-1">Выберите предпочтительный отель рядом с объектом</p>
+            </div>
+
+            <div class="space-y-3 mb-6" id="hotel-options-list">
+                <!-- Hotel Options -->
+                <div onclick="selectHotel('Mercure Hotel Leipzig (EZ inkl. Frühstück)', '85€ / ночь')" class="p-3 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl cursor-pointer transition flex items-center justify-between">
+                    <div>
+                        <h4 class="text-xs font-bold text-white">Mercure Hotel Leipzig ⭐⭐⭐⭐</h4>
+                        <p class="text-[11px] text-slate-400">2.4 км от объекта • Одноместный номер + Завтрак</p>
+                    </div>
+                    <span class="text-xs font-bold text-emerald-400">85€ / ночь</span>
+                </div>
+
+                <div onclick="selectHotel('B&B Hotel Leipzig City (EZ)', '65€ / ночь')" class="p-3 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl cursor-pointer transition flex items-center justify-between">
+                    <div>
+                        <h4 class="text-xs font-bold text-white">B&B Hotel Leipzig City ⭐⭐⭐</h4>
+                        <p class="text-[11px] text-slate-400">1.1 км от объекта • Стандартный номер</p>
+                    </div>
+                    <span class="text-xs font-bold text-emerald-400">65€ / ночь</span>
+                </div>
+
+                <div onclick="selectHotel('Ibis Budget Leipzig Hauptbahnhof', '55€ / ночь')" class="p-3 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl cursor-pointer transition flex items-center justify-between">
+                    <div>
+                        <h4 class="text-xs font-bold text-white">Ibis Budget Leipzig ⭐⭐</h4>
+                        <p class="text-[11px] text-slate-400">3.5 км от объекта • Бюджетный номер</p>
+                    </div>
+                    <span class="text-xs font-bold text-emerald-400">55€ / ночь</span>
+                </div>
+            </div>
+
+            <button type="button" onclick="closeModals()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 rounded-xl text-xs font-bold transition">
+                Закрыть
+            </button>
+        </div>
+    </div>
+
     <!-- Main Container -->
     <main class="max-w-7xl mx-auto px-6 py-8">
 
@@ -160,7 +204,6 @@
                     <i class="fa-solid fa-users-gear text-amber-500 mr-2.5"></i> 👷 Управление персоналом (Handwerker-Verwaltung)
                 </h2>
 
-                <!-- Registration Form -->
                 <form onsubmit="registerNewWorker(event)" class="grid grid-cols-1 md:grid-cols-5 gap-4 bg-slate-950 p-4 rounded-xl border border-slate-800 mb-6">
                     <div>
                         <label class="block text-[11px] text-slate-400 mb-1">Name (Имя/Фамилия):</label>
@@ -191,7 +234,6 @@
                     </div>
                 </form>
 
-                <!-- Registered Workers Table (with Delete capability) -->
                 <div class="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden">
                     <div class="px-4 py-3 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
                         <h3 class="text-xs font-bold text-slate-300">Зарегистрированные мастера в системе:</h3>
@@ -208,7 +250,6 @@
                                 </tr>
                             </thead>
                             <tbody id="workers-manage-table" class="divide-y divide-slate-800 text-slate-300">
-                                <!-- Populated dynamically -->
                             </tbody>
                         </table>
                     </div>
@@ -343,23 +384,44 @@
                             <div>
                                 <span class="font-mono text-xs font-bold text-amber-400" id="lbl-order-id-1">Auftrag #101</span>
                                 <h4 class="font-bold text-slate-200 text-sm mt-0.5">Montage & Installation</h4>
-                                <p class="text-xs text-slate-400 mt-1"><i class="fa-solid fa-location-dot text-amber-500 mr-1.5"></i>Alexanderplatz 1, Berlin</p>
-                                <p class="text-xs text-slate-400 mt-0.5"><i class="fa-regular fa-clock text-blue-400 mr-1.5"></i><span id="lbl-time-1">Ankunft: 09:00 AM</span></p>
+                                <p class="text-xs text-slate-400 mt-1">
+                                    <i class="fa-solid fa-location-dot text-amber-500 mr-1.5"></i>
+                                    <span id="order-address-text">Alexanderplatz 1, Berlin</span>
+                                </p>
+                                <p class="text-xs text-slate-400 mt-0.5">
+                                    <i class="fa-regular fa-clock text-blue-400 mr-1.5"></i>
+                                    <span id="lbl-time-1">Ankunft: 09:00 AM</span>
+                                </p>
                             </div>
-                            <a href="https://maps.google.com" target="_blank" class="bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1 transition">
+
+                            <!-- Dynamic Navigator Button -->
+                            <button onclick="startNavigation()" class="bg-blue-600 hover:bg-blue-500 text-white border border-blue-500/30 px-3.5 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition shadow-lg shadow-blue-600/20">
                                 <i class="fa-solid fa-location-arrow"></i>
-                                <span id="btn-nav">Navi</span>
-                            </a>
+                                <span id="btn-nav">Navi starten</span>
+                            </button>
                         </div>
 
-                        <div class="bg-indigo-950/40 border border-indigo-800/50 p-3 rounded-lg flex items-center justify-between text-xs text-indigo-200">
-                            <div class="flex items-center space-x-2">
-                                <i class="fa-solid fa-hotel text-indigo-400"></i>
-                                <span><b id="lbl-hotel-title">Hotel gebucht:</b> Mercure Hotel Leipzig (EZ mit Frühstück)</span>
+                        <!-- Hotel Section (Interactive Choice) -->
+                        <div class="bg-indigo-950/40 border border-indigo-800/50 p-3.5 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs text-indigo-200">
+                            <div class="flex items-center space-x-2.5">
+                                <div class="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center">
+                                    <i class="fa-solid fa-hotel text-sm"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] uppercase font-bold text-indigo-400" id="lbl-hotel-title">Hotel & Unterbringung:</p>
+                                    <p class="font-semibold text-white mt-0.5" id="current-hotel-name">Mercure Hotel Leipzig (EZ inkl. Frühstück)</p>
+                                </div>
                             </div>
-                            <span class="font-bold text-emerald-400">Bezahlt / Paid</span>
+
+                            <div class="flex items-center space-x-2 w-full md:w-auto justify-end">
+                                <button onclick="openHotelModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition shadow-md flex items-center space-x-1">
+                                    <i class="fa-solid fa-bed"></i>
+                                    <span>Выбрать / Сменить отель</span>
+                                </button>
+                            </div>
                         </div>
 
+                        <!-- Workflow Buttons -->
                         <div class="pt-2 border-t border-slate-800/80 flex flex-wrap gap-2">
                             <button onclick="updateStatus(this, 'drive')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700">
                                 <i class="fa-solid fa-truck-fast mr-1 text-amber-400"></i> <span class="btn-status-drive">Unterwegs</span>
@@ -381,7 +443,7 @@
     <script>
         const API_BASE = '';
         let sentWhatsappCounter = 0;
-        let bookedHotelsCounter = 0;
+        let bookedHotelsCounter = 1;
         let activeClusterData = null;
         let currentLang = 'de';
 
@@ -396,6 +458,7 @@
         let mastersDb = JSON.parse(localStorage.getItem('leh_masters_db')) || defaultMasters;
         let isChefAuthorized = localStorage.getItem('leh_chef_auth') === 'true';
         let activeWorker = JSON.parse(localStorage.getItem('leh_active_worker')) || null;
+        let selectedHotel = localStorage.getItem('leh_selected_hotel') || 'Mercure Hotel Leipzig (EZ inkl. Frühstück)';
 
         const langFlags = {
             de: '🇩🇪 Deutsch',
@@ -406,21 +469,47 @@
         };
 
         const i18n = {
-            de: { title: "👷 Portal für Handwerker", subtitle: "Zugewiesene Aufträge und Navigation", assignedRoute: "Zugewiesene Route", welcome: "Hallo, ", statusActive: "● Aktiv", nav: "Navi öffnen", hotelTitle: "Hotel gebucht:", drive: "Unterwegs", arrive: "Angekommen", done: "Erledigt", time: "Ankunft: 09:00 AM" },
-            ru: { title: "👷 Портал для Мастера", subtitle: "Назначенные заказы и навигация", assignedRoute: "Назначенный маршрут", welcome: "Привет, ", statusActive: "● Активен", nav: "Навигатор", hotelTitle: "Забронирован отель:", drive: "В пути", arrive: "На месте", done: "Завершено", time: "Прибытие: 09:00" },
-            ua: { title: "👷 Портал для Майстра", subtitle: "Призначені замовлення та навігація", assignedRoute: "Призначений маршрут", welcome: "Вітаємо, ", statusActive: "● Активний", nav: "Навігатор", hotelTitle: "Заброньовано готель:", drive: "В дорозі", arrive: "На місці", done: "Завершено", time: "Прибуття: 09:00" },
-            pl: { title: "👷 Portal Pracownika", subtitle: "Przydzielone zlecenia i nawigacja", assignedRoute: "Przydzielona trasa", welcome: "Witaj, ", statusActive: "● Aktywny", nav: "Nawigacja", hotelTitle: "Zarezerwowany hotel:", drive: "W drodze", arrive: "Na miejscu", done: "Zakończone", time: "Przybycie: 09:00" },
-            mo: { title: "👷 Portal Muncitor", subtitle: "Comenzi atribuite și navigație", assignedRoute: "Traseu asignat", welcome: "Salut, ", statusActive: "● Activ", nav: "Navigație", hotelTitle: "Hotel rezervat:", drive: "Pe drum", arrive: "Am ajuns", done: "Finalizat", time: "Sosire: 09:00" }
+            de: { title: "👷 Portal für Handwerker", subtitle: "Zugewiesene Aufträge und Navigation", assignedRoute: "Zugewiesene Route", welcome: "Hallo, ", statusActive: "● Aktiv", nav: "Navi starten", hotelTitle: "Hotel & Unterbringung:", drive: "Unterwegs", arrive: "Angekommen", done: "Erledigt", time: "Ankunft: 09:00 AM" },
+            ru: { title: "👷 Портал для Мастера", subtitle: "Назначенные заказы и навигация", assignedRoute: "Назначенный маршрут", welcome: "Привет, ", statusActive: "● Активен", nav: "Навигатор", hotelTitle: "Отель и проживание:", drive: "В пути", arrive: "На месте", done: "Завершено", time: "Прибытие: 09:00" },
+            ua: { title: "👷 Портал для Майстра", subtitle: "Призначені замовлення та навігація", assignedRoute: "Призначений маршрут", welcome: "Вітаємо, ", statusActive: "● Активний", nav: "Навігатор", hotelTitle: "Готель та проживання:", drive: "В дорозі", arrive: "На місці", done: "Завершено", time: "Прибуття: 09:00" },
+            pl: { title: "👷 Portal Pracownika", subtitle: "Przydzielone zlecenia i nawigacja", assignedRoute: "Przydzielona trasa", welcome: "Witaj, ", statusActive: "● Aktywny", nav: "Nawigacja", hotelTitle: "Hotel i zakwaterowanie:", drive: "W drodze", arrive: "Na miejscu", done: "Zakończone", time: "Przybycie: 09:00" },
+            mo: { title: "👷 Portal Muncitor", subtitle: "Comenzi atribuite și navigație", assignedRoute: "Traseu asignat", welcome: "Salut, ", statusActive: "● Activ", nav: "Navigație", hotelTitle: "Hotel și cazare:", drive: "Pe drum", arrive: "Am ajuns", done: "Finalizat", time: "Sosire: 09:00" }
         };
 
         function saveState() {
             localStorage.setItem('leh_masters_db', JSON.stringify(mastersDb));
             localStorage.setItem('leh_chef_auth', isChefAuthorized ? 'true' : 'false');
+            localStorage.setItem('leh_selected_hotel', selectedHotel);
             if (activeWorker) {
                 localStorage.setItem('leh_active_worker', JSON.stringify(activeWorker));
             } else {
                 localStorage.removeItem('leh_active_worker');
             }
+        }
+
+        // --- NAVIGATION FUNCTION ---
+        function startNavigation() {
+            const address = document.getElementById('order-address-text').innerText.trim();
+            if (address) {
+                const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+                window.open(googleMapsUrl, '_blank');
+            } else {
+                alert('Адрес не найден!');
+            }
+        }
+
+        // --- HOTEL MODAL FUNCTIONS ---
+        function openHotelModal() {
+            closeModals();
+            document.getElementById('hotel-picker-modal').classList.remove('hidden');
+        }
+
+        function selectHotel(hotelName, price) {
+            selectedHotel = `${hotelName} (${price})`;
+            document.getElementById('current-hotel-name').innerText = selectedHotel;
+            saveState();
+            closeModals();
+            alert(`✅ Отель успешно выбран и сохранён: ${hotelName}`);
         }
 
         function restoreAuthUI() {
@@ -436,6 +525,8 @@
                 document.getElementById('logout-text').innerText = "Abmelden (" + activeWorker.name.split(' ')[0] + ")";
                 setLanguage(activeWorker.lang || 'de');
             }
+
+            document.getElementById('current-hotel-name').innerText = selectedHotel;
         }
 
         function requestTabSwitch(tab) {
@@ -473,6 +564,7 @@
         function closeModals() {
             document.getElementById('chef-auth-modal').classList.add('hidden');
             document.getElementById('worker-auth-modal').classList.add('hidden');
+            document.getElementById('hotel-picker-modal').classList.add('hidden');
         }
 
         function handleChefAuthSubmit(e) {
@@ -546,7 +638,6 @@
             if (confirm(`Вы действительно хотите удалить рабочего "${username}"?`)) {
                 mastersDb = mastersDb.filter(m => m.user !== username);
                 
-                // If active logged worker was deleted, log them out
                 if (activeWorker && activeWorker.user === username) {
                     activeWorker = null;
                 }
@@ -561,14 +652,12 @@
         function renderMastersList() {
             document.getElementById('total-masters').innerText = mastersDb.length;
             
-            // 1. Render Select dropdown in Workflow
             const select = document.getElementById('master-select');
             select.innerHTML = '';
             mastersDb.forEach(m => {
                 select.innerHTML += `<option value="${m.name}">${m.name}</option>`;
             });
 
-            // 2. Render Management Table
             const manageTable = document.getElementById('workers-manage-table');
             manageTable.innerHTML = '';
 
