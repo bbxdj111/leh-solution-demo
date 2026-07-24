@@ -3,85 +3,977 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Disponenten-Dashboard | CraftService</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <title>LEH Solutions | Dispo & Handwerker Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #f1f5f9; font-family: 'Segoe UI', system-ui, sans-serif; }
-        .sidebar { background-color: #0f172a; color: white; min-height: 100vh; }
-        .card-custom { background: white; border-radius: 12px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-        #admin-map { height: 300px; width: 100%; border-radius: 10px; }
-        .lang-btn { font-size: 0.8rem; font-weight: 600; border-radius: 20px; }
+        /* Главный светло-серый фон для всей страницы */
+        body {
+            background-color: #f0f2f5;
+            color: #2d2427;
+        }
+
+        /* Табы переключения ролей */
+        .tab-btn.active {
+            background-color: #925866;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        /* Пользовательская розово-серая палитра */
+        .bg-site-main { background-color: #e8dadf; }
+        .bg-site-card { background-color: #f4ecee; }
+        .bg-site-header { background-color: #dfccd2; }
+        .border-site { border-color: #d6c4c9; }
+        .text-accent { color: #925866; }
+        .bg-accent { background-color: #925866; }
+        .hover-bg-accent:hover { background-color: #7c4855; }
     </style>
 </head>
-<body>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-3 col-lg-2 sidebar p-3">
-                <a href="index.html" class="d-flex align-items-center mb-4 text-white text-decoration-none fs-5 fw-bold">
-                    <i class="bi bi-tools me-2 text-primary"></i> CraftAdmin
-                </a>
-                <hr>
-                <ul class="nav nav-pills flex-column mb-auto">
-                    <li class="nav-item"><a href="#" class="nav-link active bg-primary text-white"><i class="bi bi-diagram-3 me-2"></i> Clustering & Routen</a></li>
-                </ul>
-                <hr class="mt-auto">
-                <div class="d-flex justify-content-between align-items-center">
-                    <a href="login.html" class="btn btn-outline-light btn-sm"><i class="bi bi-box-arrow-left me-1"></i> Logout</a>
-                    <div class="btn-group">
-                        <button class="btn btn-sm btn-primary lang-btn" id="btn-de" onclick="setLanguage('de')">DE</button>
-                        <button class="btn btn-sm btn-outline-light lang-btn" id="btn-ru" onclick="setLanguage('ru')">RU</button>
+<body class="min-h-screen font-sans antialiased py-4 md:py-8 px-2 md:px-6">
+
+    <!-- Оболочка сайта в розово-серой гамме -->
+    <div class="max-w-7xl mx-auto bg-site-main border border-site rounded-2xl shadow-xl overflow-hidden">
+
+        <!-- Header Navigation -->
+        <header class="bg-site-header border-b border-site sticky top-0 z-40">
+            <div class="px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center space-x-4">
+                    <div class="bg-accent text-white w-11 h-11 rounded-xl font-black text-xl flex items-center justify-center shadow-md">
+                        LEH
                     </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <h1 class="text-xl font-bold tracking-tight text-[#2d2427]">LEH SOLUTIONS</h1>
+                            <span class="text-[10px] uppercase tracking-widest px-2 py-0.5 rounded bg-[#f4ecee] text-accent font-semibold border border-site">Dispo & Multi-Lang System</span>
+                        </div>
+                        <p class="text-xs text-[#5c4a50]">Handwerker-Steuerung & KI-Routenplanung</p>
+                    </div>
+                </div>
+
+                <!-- View Switcher Tabs -->
+                <div class="flex items-center space-x-2 bg-[#f4ecee] p-1.5 rounded-xl border border-site">
+                    <button onclick="requestTabSwitch('boss')" id="tab-boss" class="tab-btn active px-4 py-2 rounded-lg text-xs transition flex items-center space-x-2">
+                        <i class="fa-solid fa-lock mr-1" id="boss-lock-icon"></i>
+                        <i class="fa-solid fa-user-tie"></i>
+                        <span>Disponenten-Panel (Chef)</span>
+                    </button>
+                    <button onclick="requestTabSwitch('worker')" id="tab-worker" class="tab-btn bg-white text-[#5c4a50] hover:text-[#2d2427] px-4 py-2 rounded-lg text-xs transition flex items-center space-x-2">
+                        <i class="fa-solid fa-lock text-accent mr-1" id="worker-lock-icon"></i>
+                        <i class="fa-solid fa-hard-hat"></i>
+                        <span>Handwerker-Portal (Рабочий)</span>
+                    </button>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <button onclick="logoutCurrentSession()" id="btn-logout" class="hidden bg-[#f4ecee] hover:bg-[#dfccd2] text-rose-700 border border-site px-3 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span id="logout-text">Abmelden</span>
+                    </button>
+                    <button onclick="seedData()" class="bg-accent hover-bg-accent text-white px-3 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shadow-md">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>Testdaten laden</span>
+                    </button>
                 </div>
             </div>
+        </header>
 
-            <div class="col-md-9 col-lg-10 p-4">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h3 class="fw-bold mb-0" id="dash-title">📍 Routen-Optimierung (Clustering)</h3>
-                        <p class="text-muted small" id="dash-sub">Aufträge географически объединять и назначать мастерам</p>
+        <!-- Main Content Area -->
+        <main class="p-6 md:p-8 space-y-8">
+
+            <!-- VIEW 1: CHEF PANEL -->
+            <div id="view-boss" class="space-y-8">
+                <!-- Stat Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+                    <div class="bg-site-card p-5 rounded-2xl border border-site shadow-sm">
+                        <p class="text-xs text-[#6e5a61] font-semibold uppercase">Gesamtaufträge</p>
+                        <p id="total-orders" class="text-3xl font-black text-accent mt-2">0</p>
+                    </div>
+                    <div class="bg-site-card p-5 rounded-2xl border border-site shadow-sm">
+                        <p class="text-xs text-[#6e5a61] font-semibold uppercase">Registrierte Handwerker</p>
+                        <p id="total-masters" class="text-3xl font-black text-emerald-700 mt-2">0</p>
+                    </div>
+                    <div class="bg-site-card p-5 rounded-2xl border border-site shadow-sm">
+                        <p class="text-xs text-[#6e5a61] font-semibold uppercase">WhatsApp Versendet</p>
+                        <p id="whatsapp-count" class="text-3xl font-black text-emerald-700 mt-2">0</p>
+                    </div>
+                    <div class="bg-site-card p-5 rounded-2xl border border-site shadow-sm">
+                        <p class="text-xs text-[#6e5a61] font-semibold uppercase">Hotelbuchungen</p>
+                        <p id="hotel-bookings" class="text-3xl font-black text-accent mt-2">0</p>
                     </div>
                 </div>
 
-                <div class="card card-custom p-3 mb-4"><div id="admin-map"></div></div>
+                <!-- REGISTRATION & MANAGEMENT MODULE -->
+                <div class="bg-site-card rounded-2xl border border-site p-6 shadow-sm">
+                    <h2 class="text-base font-bold text-[#2d2427] mb-4 flex items-center">
+                        <i class="fa-solid fa-users-gear text-accent mr-2.5"></i> 👷 Управление персоналом (Handwerker-Verwaltung)
+                    </h2>
 
-                <div class="row g-4">
-                    <div class="col-lg-5">
-                        <div class="card card-custom p-4">
-                            <h5 class="fw-bold mb-3">📑 Offene Aufträge</h5>
-                            <div class="p-3 border rounded mb-2 bg-light">
-                                <strong>#1 Klimaanlagen-Reparatur</strong>
-                                <small class="text-muted d-block">📍 Berlin, Alexanderplatz 3 | 👤 Anna</small>
-                            </div>
-                            <div class="p-3 border rounded mb-2 bg-light">
-                                <strong>#2 Sanitärinstallation</strong>
-                                <small class="text-muted d-block">📍 Berlin, Alexanderplatz 8 | 👤 Dmitri</small>
-                            </div>
+                    <form onsubmit="registerNewWorker(event)" class="grid grid-cols-1 md:grid-cols-5 gap-4 bg-[#dfccd2]/50 p-4 rounded-xl border border-site mb-6">
+                        <div>
+                            <label class="block text-[11px] text-[#5c4a50] mb-1">Name (Имя/Фамилия):</label>
+                            <input type="text" id="reg-name" placeholder="z.B. Ivan Petrov" required class="w-full bg-white border border-site rounded-lg px-3 py-1.5 text-xs text-[#2d2427] focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-[#5c4a50] mb-1">Benutzername (Логин):</label>
+                            <input type="text" id="reg-user" placeholder="ivan" required class="w-full bg-white border border-site rounded-lg px-3 py-1.5 text-xs text-[#2d2427] focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-[#5c4a50] mb-1">Passwort (Пароль):</label>
+                            <input type="password" id="reg-pass" placeholder="1234" required class="w-full bg-white border border-site rounded-lg px-3 py-1.5 text-xs text-[#2d2427] focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-[#5c4a50] mb-1">Standard-Sprache (Язык):</label>
+                            <select id="reg-lang" class="w-full bg-white border border-site rounded-lg px-3 py-1.5 text-xs text-[#2d2427] focus:outline-none">
+                                <option value="de">🇩🇪 Deutsch</option>
+                                <option value="ru">🇷🇺 Русский</option>
+                                <option value="ua">🇺🇦 Українська</option>
+                                <option value="pl">🇵🇱 Polski</option>
+                                <option value="mo">🇲🇩 Moldovenească</option>
+                            </select>
+                        </div>
+                        <div class="flex items-end">
+                            <button type="submit" class="w-full bg-emerald-700 hover:bg-emerald-600 text-white font-bold py-1.5 rounded-lg text-xs transition shadow-md">
+                                + Hinzufügen
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="bg-white rounded-xl border border-site overflow-hidden">
+                        <div class="px-4 py-3 border-b border-site flex justify-between items-center bg-site-header">
+                            <h3 class="text-xs font-bold text-[#2d2427]">Зарегистрированные мастера в системе:</h3>
+                            <span class="text-[10px] text-[#5c4a50]">Удаление приводит к моментальной аннуляции доступа</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead>
+                                    <tr class="border-b border-site text-[#6e5a61] text-[10px] uppercase bg-site-card">
+                                        <th class="p-3">Имя / Команда</th>
+                                        <th class="p-3">Логин</th>
+                                        <th class="p-3">Язык</th>
+                                        <th class="p-3 text-right">Действие</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="workers-manage-table" class="divide-y divide-site text-[#2d2427]">
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-                    <div class="col-lg-7">
-                        <div class="card card-custom p-4">
-                            <h5 class="fw-bold mb-3">⚙️ Umkreis-Suche & Paketierung</h5>
-                            <button class="btn btn-success w-100 fw-bold py-2 mt-3" onclick="alert('Aufträge erfolgreich zugewiesen!')">
-                                🚀 Aufträge zuweisen & WhatsApp senden
+                </div>
+
+                <!-- WORKFLOW MODULE -->
+                <div class="bg-site-card rounded-2xl border border-site p-6 shadow-sm">
+                    <h2 class="text-lg font-bold text-[#2d2427] mb-6 flex items-center">
+                        <i class="fa-solid fa-sliders text-accent mr-2.5"></i> KI-Routensteuerung & Disponenten-Freigabe
+                    </h2>
+
+                    <div class="bg-[#dfccd2]/40 p-6 rounded-xl border border-site mb-6">
+                        <div class="flex items-center space-x-2 mb-4">
+                            <span class="w-6 h-6 rounded-full bg-accent text-white text-xs font-bold flex items-center justify-center">1</span>
+                            <h3 class="font-bold text-accent text-sm">Erstauftrag, Suchradius (KM) & Handwerker festlegen</h3>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                            <div>
+                                <label class="block text-xs text-[#5c4a50] mb-1.5 font-medium">Erstauftrag (Startpunkt) auswählen:</label>
+                                <select id="start-order-select" class="w-full bg-white border border-site rounded-xl px-3.5 py-2 text-xs text-[#2d2427] focus:outline-none">
+                                    <option value="">Lade Aufträge...</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs text-[#5c4a50] mb-1.5 font-medium font-medium">Suchradius für Folgeaufträge (KM):</label>
+                                <div class="flex items-center space-x-3">
+                                    <input type="range" id="km-range" min="10" max="200" value="50" oninput="document.getElementById('km-val').innerText = this.value" class="w-full accent-[#925866]">
+                                    <span class="text-xs font-bold text-accent w-12"><span id="km-val">50</span> km</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs text-[#5c4a50] mb-1.5 font-medium">Handwerker / Team zuweisen:</label>
+                                <select id="master-select" class="w-full bg-white border border-site rounded-xl px-3.5 py-2 text-xs text-[#2d2427] focus:outline-none">
+                                    <option value="">Lade Handwerker...</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button onclick="runAiClustering()" class="bg-accent hover-bg-accent text-white font-bold px-6 py-2.5 rounded-xl text-xs transition shadow-md flex items-center space-x-2">
+                            <i class="fa-solid fa-microchip"></i>
+                            <span>KI-Routenberechnung starten</span>
+                        </button>
+                    </div>
+
+                    <div id="approval-panel" class="bg-[#dfccd2]/60 p-6 rounded-xl border border-accent mb-6 hidden">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-2">
+                                <span class="w-6 h-6 rounded-full bg-accent text-white text-xs font-bold flex items-center justify-center">2</span>
+                                <h3 class="font-bold text-[#2d2427] text-sm">Prüfung & Freigabe durch den Chef</h3>
+                            </div>
+                            <span class="text-[10px] font-bold px-2.5 py-1 rounded bg-[#f4ecee] text-accent border border-site">Wartet auf Disponenten-Freigabe</span>
+                        </div>
+
+                        <div id="cluster-results" class="text-xs text-[#2d2427] space-y-2 mb-6 bg-white p-4 rounded-lg border border-site"></div>
+
+                        <div class="flex items-center space-x-3">
+                            <button onclick="approveRoute()" class="bg-emerald-700 hover:bg-emerald-600 text-white font-bold px-6 py-2.5 rounded-xl text-xs transition shadow-md flex items-center space-x-2">
+                                <i class="fa-solid fa-check"></i>
+                                <span>Route freigeben & Benachrichtigungen senden</span>
+                            </button>
+                            <button onclick="rejectRoute()" class="bg-white hover:bg-slate-100 text-[#2d2427] px-4 py-2.5 rounded-xl text-xs font-medium border border-site transition">
+                                Route ablehnen
                             </button>
                         </div>
                     </div>
+
+                    <div id="timeline-panel" class="bg-white p-6 rounded-xl border border-emerald-600 hidden">
+                        <div class="flex items-center space-x-2 mb-4">
+                            <span class="w-6 h-6 rounded-full bg-emerald-700 text-white text-xs font-bold flex items-center justify-center">3</span>
+                            <h3 class="font-bold text-emerald-800 text-sm">System-Status & Ausführung</h3>
+                        </div>
+                        <div class="space-y-3 text-xs" id="timeline-list"></div>
+                    </div>
+                </div>
+
+                <div class="bg-site-card rounded-2xl border border-site p-6 shadow-sm">
+                    <h3 class="font-bold text-[#2d2427] text-sm mb-4">Aktuelle Aufträge im System</h3>
+                    <div class="overflow-x-auto bg-white rounded-xl border border-site">
+                        <table class="w-full text-left text-xs">
+                            <thead>
+                                <tr class="border-b border-site text-[#6e5a61] uppercase text-[10px] bg-site-header">
+                                    <th class="p-3">Auftrag-ID</th>
+                                    <th class="p-3">Bezeichnung</th>
+                                    <th class="p-3">Kunde</th>
+                                    <th class="p-3">Stadt / Ort</th>
+                                    <th class="p-3">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orders-table-body" class="divide-y divide-site text-[#2d2427]">
+                                <tr><td colspan="5" class="p-4 text-center text-[#5c4a50]">Lade Daten...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
+
+            <!-- VIEW 2: WORKER PORTAL -->
+            <div id="view-worker" class="hidden space-y-6">
+                <div class="bg-site-card p-5 rounded-2xl border border-site flex flex-col md:flex-row justify-between items-center gap-4 shadow-sm">
+                    <div>
+                        <h2 class="text-base font-bold text-[#2d2427]" id="lang-title">👷 Portal für Handwerker</h2>
+                        <p class="text-xs text-[#5c4a50]" id="lang-subtitle">Wählen Sie Ihre Sprache / Оберіть мову / Выберите язык</p>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="setLanguage('de')" id="btn-lang-de" class="px-3 py-1.5 rounded-lg text-xs font-bold border border-accent bg-accent text-white shadow-sm">🇩🇪 DE</button>
+                        <button onclick="setLanguage('ru')" id="btn-lang-ru" class="px-3 py-1.5 rounded-lg text-xs font-bold border border-site bg-white text-[#2d2427] hover:bg-site-header">🇷🇺 RU</button>
+                        <button onclick="setLanguage('ua')" id="btn-lang-ua" class="px-3 py-1.5 rounded-lg text-xs font-bold border border-site bg-white text-[#2d2427] hover:bg-site-header">🇺🇦 UA</button>
+                        <button onclick="setLanguage('pl')" id="btn-lang-pl" class="px-3 py-1.5 rounded-lg text-xs font-bold border border-site bg-white text-[#2d2427] hover:bg-site-header">🇵🇱 PL</button>
+                        <button onclick="setLanguage('mo')" id="btn-lang-mo" class="px-3 py-1.5 rounded-lg text-xs font-bold border border-site bg-white text-[#2d2427] hover:bg-site-header">🇲🇩 MO/RO</button>
+                    </div>
+                </div>
+
+                <div class="bg-site-card rounded-2xl border border-site p-6 shadow-sm">
+                    <div class="flex justify-between items-center pb-4 mb-6 border-b border-site">
+                        <div>
+                            <span class="text-[10px] uppercase font-bold text-accent tracking-wider" id="lbl-assigned-route">Zugewiesene Route</span>
+                            <h3 class="text-lg font-bold text-[#2d2427] mt-1" id="lbl-worker-welcome">Hallo, Hans</h3>
+                        </div>
+                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200" id="lbl-route-status">
+                            ● Aktiv
+                        </span>
+                    </div>
+
+                    <div class="space-y-4" id="worker-orders-list">
+                        <div class="bg-white p-4 rounded-xl border border-site space-y-3 shadow-sm">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <span class="font-mono text-xs font-bold text-accent" id="lbl-order-id-1">Auftrag #101</span>
+                                    <h4 class="font-bold text-[#2d2427] text-sm mt-0.5" id="lbl-order-title">Montage & Installation</h4>
+                                    <p class="text-xs text-[#5c4a50] mt-1">
+                                        <i class="fa-solid fa-location-dot text-accent mr-1.5"></i>
+                                        <span id="order-address-text">Alexanderplatz 1, Berlin</span>
+                                    </p>
+                                    <p class="text-xs text-[#5c4a50] mt-0.5">
+                                        <i class="fa-regular fa-clock text-accent mr-1.5"></i>
+                                        <span id="lbl-time-1">Ankunft: 09:00 AM</span>
+                                    </p>
+                                </div>
+
+                                <!-- Dynamic Navigator Button -->
+                                <button onclick="startNavigation()" class="bg-accent hover-bg-accent text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition shadow-md">
+                                    <i class="fa-solid fa-location-arrow"></i>
+                                    <span id="btn-nav">Navi starten</span>
+                                </button>
+                            </div>
+
+                            <!-- Hotel Section -->
+                            <div class="bg-site-card border border-site p-3.5 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs text-[#2d2427]">
+                                <div class="flex items-center space-x-2.5">
+                                    <div class="w-8 h-8 rounded-lg bg-site-header border border-site text-accent flex items-center justify-center">
+                                        <i class="fa-solid fa-hotel text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] uppercase font-bold text-accent" id="lbl-hotel-title">Hotel & Unterbringung:</p>
+                                        <p class="font-semibold text-[#2d2427] mt-0.5" id="current-hotel-name">Загрузка отеля...</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center space-x-2 w-full md:w-auto justify-end">
+                                    <button onclick="openHotelModal()" class="bg-accent hover-bg-accent text-white font-bold px-3 py-1.5 rounded-lg text-xs transition shadow-sm flex items-center space-x-1">
+                                        <i class="fa-solid fa-bed"></i>
+                                        <span>Выбрать / Сменить отель</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Workflow Buttons -->
+                            <div class="pt-2 border-t border-site flex flex-wrap gap-2">
+                                <button onclick="updateStatus(this, 'drive')" class="bg-site-card hover:bg-site-header text-[#2d2427] px-3 py-1.5 rounded-lg text-xs font-medium border border-site">
+                                    <i class="fa-solid fa-truck-fast mr-1 text-accent"></i> <span class="btn-status-drive">Unterwegs</span>
+                                </button>
+                                <button onclick="updateStatus(this, 'arrive')" class="bg-site-card hover:bg-site-header text-[#2d2427] px-3 py-1.5 rounded-lg text-xs font-medium border border-site">
+                                    <i class="fa-solid fa-street-view mr-1 text-accent"></i> <span class="btn-status-arrive">Angekommen</span>
+                                </button>
+                                <button onclick="updateStatus(this, 'done')" class="bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-md">
+                                    <i class="fa-solid fa-circle-check mr-1"></i> <span class="btn-status-done">Erledigt</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Modal 1: Chef Auth -->
+    <div id="chef-auth-modal" class="fixed inset-0 bg-[#2d2427]/60 backdrop-blur-md z-50 flex items-center justify-center hidden">
+        <div class="bg-site-card border border-site p-6 rounded-2xl max-w-sm w-full mx-4 shadow-2xl relative">
+            <div class="text-center mb-5">
+                <div class="w-12 h-12 bg-site-header border border-site text-accent rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+                <h3 class="text-base font-bold text-[#2d2427]">Disponenten-Login (Chef)</h3>
+                <p class="text-xs text-[#5c4a50] mt-1">Geben Sie den PIN-Code ein (Standard: <b class="text-accent">1234</b>)</p>
+            </div>
+
+            <form onsubmit="handleChefAuthSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-[#5c4a50] mb-1.5">PIN / Passwort:</label>
+                    <input type="password" id="chef-pin-input" placeholder="1234" autofocus class="w-full bg-white border border-site rounded-xl px-4 py-2.5 text-center text-lg font-mono text-accent focus:outline-none tracking-widest">
+                </div>
+
+                <div id="chef-auth-error" class="text-xs text-rose-700 text-center font-medium hidden">
+                    ❌ Falscher PIN-Code! (Versuchen Sie: 1234)
+                </div>
+
+                <div class="flex space-x-2 pt-2">
+                    <button type="button" onclick="closeModals()" class="w-1/2 bg-white hover:bg-slate-100 text-[#2d2427] py-2.5 rounded-xl text-xs font-bold border border-site transition">
+                        Abbrechen
+                    </button>
+                    <button type="submit" class="w-1/2 bg-accent hover-bg-accent text-white py-2.5 rounded-xl text-xs font-bold transition shadow-md">
+                        Anmelden
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Modal 2: Worker Login -->
+    <div id="worker-auth-modal" class="fixed inset-0 bg-[#2d2427]/60 backdrop-blur-md z-50 flex items-center justify-center hidden">
+        <div class="bg-site-card border border-site p-6 rounded-2xl max-w-sm w-full mx-4 shadow-2xl relative">
+            <div class="text-center mb-5">
+                <div class="w-12 h-12 bg-site-header border border-site text-accent rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl">
+                    <i class="fa-solid fa-hard-hat"></i>
+                </div>
+                <h3 class="text-base font-bold text-[#2d2427]">Handwerker-Anmeldung</h3>
+                <p class="text-xs text-[#5c4a50] mt-1">Вход для мастера (Тест: <b class="text-accent">hans</b> / пароль: <b class="text-accent">1234</b>)</p>
+            </div>
+
+            <form onsubmit="handleWorkerAuthSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-[#5c4a50] mb-1.5">Benutzername / Логин:</label>
+                    <input type="text" id="worker-username-input" placeholder="hans" required class="w-full bg-white border border-site rounded-xl px-3.5 py-2 text-xs text-[#2d2427] focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-[#5c4a50] mb-1.5">Passwort / Пароль:</label>
+                    <input type="password" id="worker-password-input" placeholder="••••" required class="w-full bg-white border border-site rounded-xl px-3.5 py-2 text-xs text-[#2d2427] focus:outline-none">
+                </div>
+
+                <div id="worker-auth-error" class="text-xs text-rose-700 text-center font-medium hidden">
+                    ❌ Неверный логин или пароль!
+                </div>
+
+                <div class="flex space-x-2 pt-2">
+                    <button type="button" onclick="closeModals()" class="w-1/2 bg-white hover:bg-slate-100 text-[#2d2427] py-2.5 rounded-xl text-xs font-bold border border-site transition">
+                        Abbrechen
+                    </button>
+                    <button type="submit" class="w-1/2 bg-accent hover-bg-accent text-white py-2.5 rounded-xl text-xs font-bold transition shadow-md">
+                        Einloggen
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 3: Worker Dynamic Hotel Picker -->
+    <div id="hotel-picker-modal" class="fixed inset-0 bg-[#2d2427]/60 backdrop-blur-md z-50 flex items-center justify-center hidden">
+        <div class="bg-site-card border border-site p-6 rounded-2xl max-w-md w-full mx-4 shadow-2xl relative">
+            <div class="text-center mb-5">
+                <div class="w-12 h-12 bg-site-header border border-site text-accent rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl">
+                    <i class="fa-solid fa-hotel"></i>
+                </div>
+                <h3 class="text-base font-bold text-[#2d2427]">🏨 Выбор отеля для проживания</h3>
+                <p class="text-xs text-[#5c4a50] mt-1" id="modal-city-subtitle">Подборка ближайших отелей к объекту</p>
+            </div>
+
+            <!-- Dynamic Hotels Container -->
+            <div class="space-y-3 mb-6" id="hotel-options-list">
+                <!-- Will be populated dynamically by JS according to order city -->
+            </div>
+
+            <button type="button" onclick="closeModals()" class="w-full bg-white hover:bg-slate-100 text-[#2d2427] py-2 rounded-xl text-xs font-bold border border-site transition">
+                Закрыть
+            </button>
+        </div>
+    </div>
+
     <script>
-        const map = L.map('admin-map').setView([52.5200, 13.4050], 12);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-        L.marker([52.5200, 13.4050]).addTo(map);
-        function setLanguage(lang) {
-            document.getElementById('btn-de').className = lang === 'de' ? 'btn btn-sm btn-primary lang-btn' : 'btn btn-sm btn-outline-light lang-btn';
-            document.getElementById('btn-ru').className = lang === 'ru' ? 'btn btn-sm btn-primary lang-btn' : 'btn btn-sm btn-outline-light lang-btn';
+        const API_BASE = '';
+        let sentWhatsappCounter = 0;
+        let bookedHotelsCounter = 1;
+        let activeClusterData = null;
+        let currentLang = 'de';
+        let allOrdersList = [];
+
+        const CHEF_PIN = "1234";
+
+        const defaultMasters = [
+            { name: "Hans (LEH Team 1)", user: "hans", pass: "1234", lang: "de" },
+            { name: "Stefan (LEH Team 2)", user: "stefan", pass: "1234", lang: "ru" },
+            { name: "Marek (LEH Team 3)", user: "marek", pass: "1234", lang: "pl" }
+        ];
+
+        let mastersDb = JSON.parse(localStorage.getItem('leh_masters_db')) || defaultMasters;
+        let isChefAuthorized = localStorage.getItem('leh_chef_auth') === 'true';
+        let activeWorker = JSON.parse(localStorage.getItem('leh_active_worker')) || null;
+        let activeWorkerOrder = JSON.parse(localStorage.getItem('leh_active_worker_order')) || {
+            id: 101,
+            title: "Montage & Installation",
+            address: "Alexanderplatz 1, Berlin",
+            city: "Berlin"
+        };
+        let selectedHotel = localStorage.getItem('leh_selected_hotel') || null;
+
+        const langFlags = {
+            de: '🇩🇪 Deutsch',
+            ru: '🇷🇺 Русский',
+            ua: '🇺🇦 Українська',
+            pl: '🇵🇱 Polski',
+            mo: '🇲🇩 Moldoveneastră'
+        };
+
+        const i18n = {
+            de: { title: "👷 Portal für Handwerker", subtitle: "Zugewiesene Aufträge und Navigation", assignedRoute: "Zugewiesene Route", welcome: "Hallo, ", statusActive: "● Aktiv", nav: "Navi starten", hotelTitle: "Hotel & Unterbringung:", drive: "Unterwegs", arrive: "Angekommen", done: "Erledigt", time: "Ankunft: 09:00 AM" },
+            ru: { title: "👷 Портал для Мастера", subtitle: "Назначенные заказы и навигация", assignedRoute: "Назначенный маршрут", welcome: "Привет, ", statusActive: "● Активен", nav: "Навигатор", hotelTitle: "Отель и проживание:", drive: "В пути", arrive: "На месте", done: "Завершено", time: "Прибытие: 09:00" },
+            ua: { title: "👷 Портал для Майстра", subtitle: "Призначені замовлення та навігація", assignedRoute: "Призначений маршрут", welcome: "Вітаємо, ", statusActive: "● Активний", nav: "Навігатор", hotelTitle: "Готель та проживання:", drive: "В дорозі", arrive: "На місці", done: "Завершено", time: "Прибуття: 09:00" },
+            pl: { title: "👷 Portal Pracownika", subtitle: "Przydzielone zlecenia i nawigacja", assignedRoute: "Przydzielona trasa", welcome: "Witaj, ", statusActive: "● Aktywny", nav: "Nawigacja", hotelTitle: "Hotel i zakwaterowanie:", drive: "W drodze", arrive: "Na miejscu", done: "Zakończone", time: "Przybycie: 09:00" },
+            mo: { title: "👷 Portal Muncitor", subtitle: "Comenzi atribuite și navigație", assignedRoute: "Traseu asignat", welcome: "Salut, ", statusActive: "● Activ", nav: "Navigație", hotelTitle: "Hotel și cazare:", drive: "Pe drum", arrive: "Am ajuns", done: "Finalizat", time: "Sosire: 09:00" }
+        };
+
+        function saveState() {
+            localStorage.setItem('leh_masters_db', JSON.stringify(mastersDb));
+            localStorage.setItem('leh_chef_auth', isChefAuthorized ? 'true' : 'false');
+            localStorage.setItem('leh_active_worker_order', JSON.stringify(activeWorkerOrder));
+            if (selectedHotel) {
+                localStorage.setItem('leh_selected_hotel', selectedHotel);
+            }
+            if (activeWorker) {
+                localStorage.setItem('leh_active_worker', JSON.stringify(activeWorker));
+            } else {
+                localStorage.removeItem('leh_active_worker');
+            }
         }
+
+        // --- DYNAMIC HOTEL GENERATOR BY CITY ---
+        function getHotelsForCity(city) {
+            const cityName = city || 'Berlin';
+            return [
+                {
+                    name: `Mercure Hotel ${cityName} ⭐⭐⭐⭐`,
+                    desc: `1.8 км от объекта • EZ inkl. Frühstück`,
+                    price: `85€ / ночь`,
+                    fullName: `Mercure Hotel ${cityName} (EZ inkl. Frühstück)`
+                },
+                {
+                    name: `B&B Hotel ${cityName} Center ⭐⭐⭐`,
+                    desc: `0.9 км от объекта • Стандартный номер`,
+                    price: `65€ / ночь`,
+                    fullName: `B&B Hotel ${cityName} Center (EZ)`
+                },
+                {
+                    name: `Ibis Budget ${cityName} ⭐⭐`,
+                    desc: `2.4 км от объекта • Эконом номер`,
+                    price: `55€ / ночь`,
+                    fullName: `Ibis Budget ${cityName}`
+                }
+            ];
+        }
+
+        function updateWorkerCardUI() {
+            if (!activeWorkerOrder) return;
+
+            document.getElementById('lbl-order-id-1').innerText = `Auftrag #${activeWorkerOrder.id}`;
+            document.getElementById('lbl-order-title').innerText = activeWorkerOrder.title || 'Montage & Installation';
+            document.getElementById('order-address-text').innerText = activeWorkerOrder.address || `${activeWorkerOrder.city || 'Berlin'}`;
+
+            if (!selectedHotel || !selectedHotel.includes(activeWorkerOrder.city)) {
+                selectedHotel = `Mercure Hotel ${activeWorkerOrder.city || 'Berlin'} (EZ inkl. Frühstück) (85€ / ночь)`;
+            }
+
+            document.getElementById('current-hotel-name').innerText = selectedHotel;
+        }
+
+        // --- NAVIGATION FUNCTION ---
+        function startNavigation() {
+            const address = document.getElementById('order-address-text').innerText.trim();
+            if (address) {
+                const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+                window.open(googleMapsUrl, '_blank');
+            } else {
+                alert('Адрес не найден!');
+            }
+        }
+
+        // --- HOTEL MODAL FUNCTIONS ---
+        function openHotelModal() {
+            closeModals();
+            const city = activeWorkerOrder.city || 'Berlin';
+            document.getElementById('modal-city-subtitle').innerText = `Подборка отелей рядом с объектом (${city})`;
+
+            const list = document.getElementById('hotel-options-list');
+            const hotels = getHotelsForCity(city);
+
+            list.innerHTML = hotels.map(h => `
+                <div onclick="selectHotel('${h.fullName}', '${h.price}')" class="p-3 bg-white hover:bg-site-header border border-site rounded-xl cursor-pointer transition flex items-center justify-between">
+                    <div>
+                        <h4 class="text-xs font-bold text-[#2d2427]">${h.name}</h4>
+                        <p class="text-[11px] text-[#5c4a50]">${h.desc}</p>
+                    </div>
+                    <span class="text-xs font-bold text-accent">${h.price}</span>
+                </div>
+            `).join('');
+
+            document.getElementById('hotel-picker-modal').classList.remove('hidden');
+        }
+
+        function selectHotel(hotelName, price) {
+            selectedHotel = `${hotelName} (${price})`;
+            document.getElementById('current-hotel-name').innerText = selectedHotel;
+            saveState();
+            closeModals();
+            alert(`✅ Отель успешно выбран и сохранён: ${hotelName}`);
+        }
+
+        function restoreAuthUI() {
+            if (isChefAuthorized) {
+                document.getElementById('boss-lock-icon').className = "fa-solid fa-lock-open text-emerald-800 mr-1";
+                document.getElementById('btn-logout').classList.remove('hidden');
+                document.getElementById('logout-text').innerText = "Abmelden (Chef)";
+            }
+
+            if (activeWorker) {
+                document.getElementById('worker-lock-icon').className = "fa-solid fa-lock-open text-emerald-800 mr-1";
+                document.getElementById('btn-logout').classList.remove('hidden');
+                document.getElementById('logout-text').innerText = "Abmelden (" + activeWorker.name.split(' ')[0] + ")";
+                setLanguage(activeWorker.lang || 'de');
+            }
+
+            updateWorkerCardUI();
+        }
+
+        function requestTabSwitch(tab) {
+            if (tab === 'boss') {
+                if (!isChefAuthorized) {
+                    openChefAuthModal();
+                } else {
+                    switchTab('boss');
+                }
+            } else if (tab === 'worker') {
+                if (!activeWorker) {
+                    openWorkerAuthModal();
+                } else {
+                    switchTab('worker');
+                }
+            }
+        }
+
+        function openChefAuthModal() {
+            closeModals();
+            document.getElementById('chef-auth-modal').classList.remove('hidden');
+            document.getElementById('chef-pin-input').value = '';
+            document.getElementById('chef-auth-error').classList.add('hidden');
+            document.getElementById('chef-pin-input').focus();
+        }
+
+        function openWorkerAuthModal() {
+            closeModals();
+            document.getElementById('worker-auth-modal').classList.remove('hidden');
+            document.getElementById('worker-username-input').value = '';
+            document.getElementById('worker-password-input').value = '';
+            document.getElementById('worker-auth-error').classList.add('hidden');
+        }
+
+        function closeModals() {
+            document.getElementById('chef-auth-modal').classList.add('hidden');
+            document.getElementById('worker-auth-modal').classList.add('hidden');
+            document.getElementById('hotel-picker-modal').classList.add('hidden');
+        }
+
+        function handleChefAuthSubmit(e) {
+            e.preventDefault();
+            const inputPin = document.getElementById('chef-pin-input').value.trim();
+
+            if (inputPin === CHEF_PIN || inputPin.toLowerCase() === 'admin') {
+                isChefAuthorized = true;
+                saveState();
+                closeModals();
+                restoreAuthUI();
+                switchTab('boss');
+            } else {
+                document.getElementById('chef-auth-error').classList.remove('hidden');
+            }
+        }
+
+        function handleWorkerAuthSubmit(e) {
+            e.preventDefault();
+            const u = document.getElementById('worker-username-input').value.trim().toLowerCase();
+            const p = document.getElementById('worker-password-input').value.trim();
+
+            const found = mastersDb.find(m => m.user === u && m.pass === p);
+            if (found) {
+                activeWorker = found;
+                saveState();
+                closeModals();
+                restoreAuthUI();
+                switchTab('worker');
+            } else {
+                document.getElementById('worker-auth-error').classList.remove('hidden');
+            }
+        }
+
+        function logoutCurrentSession() {
+            isChefAuthorized = false;
+            activeWorker = null;
+            saveState();
+
+            document.getElementById('boss-lock-icon').className = "fa-solid fa-lock text-accent mr-1";
+            document.getElementById('worker-lock-icon').className = "fa-solid fa-lock text-accent mr-1";
+            document.getElementById('btn-logout').classList.add('hidden');
+            switchTab('boss');
+            alert('🔒 Erfolgreich abgemeldet!');
+        }
+
+        function registerNewWorker(e) {
+            e.preventDefault();
+            const name = document.getElementById('reg-name').value.trim();
+            const user = document.getElementById('reg-user').value.trim().toLowerCase();
+            const pass = document.getElementById('reg-pass').value.trim();
+            const lang = document.getElementById('reg-lang').value;
+
+            if (mastersDb.some(m => m.user === user)) {
+                alert('⚠️ Benutzername bereits vergeben!');
+                return;
+            }
+
+            mastersDb.push({ name, user, pass, lang });
+            saveState();
+            renderMastersList();
+
+            document.getElementById('reg-name').value = '';
+            document.getElementById('reg-user').value = '';
+            document.getElementById('reg-pass').value = '';
+
+            alert(`✅ Handwerker ${name} gespeichert!`);
+        }
+
+        function deleteWorker(username) {
+            if (confirm(`Вы действительно хотите удалить рабочего "${username}"?`)) {
+                mastersDb = mastersDb.filter(m => m.user !== username);
+
+                if (activeWorker && activeWorker.user === username) {
+                    activeWorker = null;
+                }
+
+                saveState();
+                renderMastersList();
+                restoreAuthUI();
+                alert(`🗑️ Рабочий "${username}" успешно удалён!`);
+            }
+        }
+
+        function renderMastersList() {
+            document.getElementById('total-masters').innerText = mastersDb.length;
+
+            const select = document.getElementById('master-select');
+            select.innerHTML = '';
+            mastersDb.forEach(m => {
+                select.innerHTML += `<option value="${m.name}">${m.name}</option>`;
+            });
+
+            const manageTable = document.getElementById('workers-manage-table');
+            manageTable.innerHTML = '';
+
+            if (mastersDb.length === 0) {
+                manageTable.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-[#5c4a50]">Нет зарегистрированных рабочих</td></tr>`;
+                return;
+            }
+
+            mastersDb.forEach(m => {
+                manageTable.innerHTML += `
+                    <tr class="hover:bg-site-card transition">
+                        <td class="p-3 font-semibold text-[#2d2427] flex items-center space-x-2">
+                            <i class="fa-solid fa-user text-accent text-xs"></i>
+                            <span>${m.name}</span>
+                        </td>
+                        <td class="p-3 font-mono text-accent font-bold text-xs">${m.user}</td>
+                        <td class="p-3 text-[#5c4a50] text-xs">${langFlags[m.lang] || m.lang}</td>
+                        <td class="p-3 text-right">
+                            <button onclick="deleteWorker('${m.user}')" title="Удалить рабочего" class="bg-rose-100 hover:bg-rose-200 text-rose-800 border border-rose-200 px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center space-x-1 ml-auto">
+                                <i class="fa-solid fa-trash-can"></i>
+                                <span>Löschen</span>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function switchTab(tab) {
+            if (tab === 'boss') {
+                document.getElementById('view-boss').classList.remove('hidden');
+                document.getElementById('view-worker').classList.add('hidden');
+                document.getElementById('tab-boss').classList.add('active');
+                document.getElementById('tab-worker').classList.remove('active');
+                document.getElementById('tab-worker').classList.add('bg-white', 'text-[#5c4a50]');
+            } else {
+                document.getElementById('view-boss').classList.add('hidden');
+                document.getElementById('view-worker').classList.remove('hidden');
+                document.getElementById('tab-worker').classList.add('active');
+                document.getElementById('tab-boss').classList.remove('active');
+                document.getElementById('tab-boss').classList.add('bg-white', 'text-[#5c4a50]');
+            }
+        }
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            const t = i18n[lang];
+
+            ['de', 'ru', 'ua', 'pl', 'mo'].forEach(l => {
+                const btn = document.getElementById(`btn-lang-${l}`);
+                if (l === lang) {
+                    btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold border border-accent bg-accent text-white shadow-sm";
+                } else {
+                    btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold border border-site bg-white text-[#2d2427] hover:bg-site-header";
+                }
+            });
+
+            document.getElementById('lang-title').innerText = t.title;
+            document.getElementById('lang-subtitle').innerText = t.subtitle;
+            document.getElementById('lbl-assigned-route').innerText = t.assignedRoute;
+            document.getElementById('lbl-worker-welcome').innerText = t.welcome + (activeWorker ? activeWorker.name : "Hans");
+            document.getElementById('lbl-route-status').innerText = t.statusActive;
+            document.getElementById('btn-nav').innerText = t.nav;
+            document.getElementById('lbl-hotel-title').innerText = t.hotelTitle;
+            document.getElementById('lbl-time-1').innerText = t.time;
+
+            document.querySelectorAll('.btn-status-drive').forEach(el => el.innerText = t.drive);
+            document.querySelectorAll('.btn-status-arrive').forEach(el => el.innerText = t.arrive);
+            document.querySelectorAll('.btn-status-done').forEach(el => el.innerText = t.done);
+        }
+
+        function updateStatus(btn, status) {
+            if (status === 'done') {
+                alert('✅ Status aktualisiert! Disponent per WhatsApp benachrichtigt.');
+                btn.className = "bg-emerald-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold cursor-not-allowed opacity-80";
+                btn.innerText = "✓ " + i18n[currentLang].done;
+            } else {
+                alert('📍 Status aktualisiert!');
+            }
+        }
+
+        function updateWaCounter(count = 1) {
+            sentWhatsappCounter += count;
+            document.getElementById('whatsapp-count').innerText = sentWhatsappCounter;
+        }
+
+        async function seedData() {
+            try {
+                const res = await fetch(`${API_BASE}/seed-data`);
+                await res.json();
+                alert('Erfolgreich! Testdaten geladen.');
+                loadAllData();
+            } catch (e) {
+                alert('Fehler beim Laden der Testdaten.');
+            }
+        }
+
+        async function loadOrders() {
+            try {
+                const res = await fetch(`${API_BASE}/orders`);
+                const orders = await res.json();
+                allOrdersList = orders || [];
+                document.getElementById('total-orders').innerText = allOrdersList.length;
+
+                const select = document.getElementById('start-order-select');
+                select.innerHTML = '';
+                const tbody = document.getElementById('orders-table-body');
+                tbody.innerHTML = '';
+
+                if (allOrdersList.length > 0) {
+                    allOrdersList.forEach(o => {
+                        const id = o.id || o.order_id;
+                        const city = o.city || 'Berlin';
+                        const title = o.title || 'Montage';
+                        select.innerHTML += `<option value="${id}">#${id} — ${title} (${city})</option>`;
+                        tbody.innerHTML += `
+                            <tr>
+                                <td class="p-3 font-mono text-accent font-bold">#${id}</td>
+                                <td class="p-3 font-semibold text-[#2d2427]">${title}</td>
+                                <td class="p-3 text-[#5c4a50]">${o.client_name || 'Kunde'}</td>
+                                <td class="p-3 text-[#5c4a50]">${city}</td>
+                                <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] bg-[#f4ecee] text-accent font-bold border border-site">${o.status || 'NEU'}</span></td>
+                            </tr>
+                        `;
+                    });
+
+                    // Assign first order as active worker order
+                    const first = allOrdersList[0];
+                    activeWorkerOrder = {
+                        id: first.id || first.order_id,
+                        title: first.title || "Montage & Installation",
+                        address: first.address || `${first.city || 'Berlin'}, Germany`,
+                        city: first.city || 'Berlin'
+                    };
+                    saveState();
+                    updateWorkerCardUI();
+                } else {
+                    select.innerHTML = '<option value="">Keine Aufträge vorhanden</option>';
+                    tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-[#5c4a50]">Bitte "Testdaten laden" klicken</td></tr>';
+                }
+            } catch (e) {}
+        }
+
+        function runAiClustering() {
+            const startOrderId = document.getElementById('start-order-select').value;
+            const km = document.getElementById('km-range').value;
+            const master = document.getElementById('master-select').value;
+
+            if (!startOrderId) {
+                alert('Bitte zuerst Testdaten laden!');
+                return;
+            }
+
+            const foundOrder = allOrdersList.find(o => (o.id || o.order_id) == startOrderId) || {
+                city: 'Berlin',
+                title: 'Montage & Installation',
+                address: 'Alexanderplatz 1, Berlin'
+            };
+
+            activeClusterData = {
+                startOrder: startOrderId,
+                km,
+                master,
+                city: foundOrder.city || 'Berlin',
+                address: foundOrder.address || `${foundOrder.city}, Germany`,
+                title: foundOrder.title || 'Montage & Installation',
+                totalDistance: parseInt(km) * 2 + 15,
+                needsHotel: parseInt(km) >= 70
+            };
+
+            const resultsDiv = document.getElementById('cluster-results');
+            resultsDiv.innerHTML = `
+                <p class="font-bold text-[#2d2427] text-sm mb-2"><i class="fa-solid fa-route text-accent mr-2"></i>Berechnete KI-Route im Radius von ${km} KM:</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                    <div class="bg-site-card p-3 rounded border border-site">
+                        <span class="text-[#5c4a50]">Erstauftrag:</span> <strong class="text-accent">#${startOrderId} (${activeClusterData.city})</strong><br>
+                        <span class="text-[#5c4a50]">Zugewiesener Handwerker:</span> <strong class="text-[#2d2427]">${master}</strong>
+                    </div>
+                    <div class="bg-site-card p-3 rounded border border-site">
+                        <span class="text-[#5c4a50]">Gesamtstrecke:</span> <strong class="text-emerald-700">${activeClusterData.totalDistance} km</strong><br>
+                        <span class="text-[#5c4a50]">Hotel-Empfehlung:</span> <strong class="${activeClusterData.needsHotel ? 'text-accent font-bold' : 'text-[#5c4a50]'}">${activeClusterData.needsHotel ? `🏨 Hotel in ${activeClusterData.city}` : 'Nicht erforderlich'}</strong>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('approval-panel').classList.remove('hidden');
+            document.getElementById('timeline-panel').classList.add('hidden');
+        }
+
+        function approveRoute() {
+            if (!activeClusterData) return;
+
+            activeWorkerOrder = {
+                id: activeClusterData.startOrder,
+                title: activeClusterData.title,
+                address: activeClusterData.address,
+                city: activeClusterData.city
+            };
+            selectedHotel = `Mercure Hotel ${activeClusterData.city} (EZ inkl. Frühstück) (85€ / ночь)`;
+            saveState();
+            updateWorkerCardUI();
+
+            if (activeClusterData.needsHotel) {
+                bookedHotelsCounter++;
+                document.getElementById('hotel-bookings').innerText = bookedHotelsCounter;
+            }
+
+            updateWaCounter(3);
+
+            const timeline = document.getElementById('timeline-list');
+            timeline.innerHTML = `
+                <div class="flex items-center space-x-3 text-emerald-800">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span><b>Route vom Disponenten freigegeben</b> für ${activeClusterData.master}</span>
+                </div>
+                <div class="flex items-center space-x-3 text-accent">
+                    <i class="fa-brands fa-whatsapp"></i>
+                    <span><b>WhatsApp an Chef:</b> "Bestätigung: Route #${activeClusterData.startOrder} (${activeClusterData.city}) wurde gestartet."</span>
+                </div>
+                <div class="flex items-center space-x-3 text-accent">
+                    <i class="fa-brands fa-whatsapp"></i>
+                    <span><b>WhatsApp an Handwerker (${activeClusterData.master}):</b> "Neue Route erhalten. Gesamtlänge: ${activeClusterData.totalDistance} km."</span>
+                </div>
+                ${activeClusterData.needsHotel ? `
+                <div class="flex items-center space-x-3 text-rose-800">
+                    <i class="fa-solid fa-hotel"></i>
+                    <span><b>LEH Logistics API:</b> Hotel reserviert "Mercure Hotel ${activeClusterData.city}" (€85/Nacht).</span>
+                </div>
+                ` : ''}
+                <div class="flex items-center space-x-3 text-emerald-800">
+                    <i class="fa-brands fa-whatsapp"></i>
+                    <span><b>WhatsApp an Kunden:</b> Live-Tracking-Link wurde an Kunden gesendet.</span>
+                </div>
+            `;
+
+            document.getElementById('timeline-panel').classList.remove('hidden');
+            alert(`✅ Route für ${activeClusterData.city} freigegeben! WhatsApp-Nachrichten versendet.`);
+        }
+
+        function rejectRoute() {
+            document.getElementById('approval-panel').classList.add('hidden');
+            document.getElementById('timeline-panel').classList.add('hidden');
+            activeClusterData = null;
+        }
+
+        function loadAllData() {
+            loadOrders();
+            renderMastersList();
+            restoreAuthUI();
+        }
+
+        loadAllData();
     </script>
 </body>
 </html>

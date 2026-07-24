@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEH-Solution | Techniker-Panel & AI Copilot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f4f7f9; font-family: system-ui, -apple-system, sans-serif; }
+        .bg-leh-navy { background-color: #0c2340; }
+        .bg-leh-blue { background-color: #0066cc; }
+        .text-leh-navy { color: #0c2340; }
+        .text-leh-blue { color: #0066cc; }
+    </style>
+</head>
+<body class="min-h-screen pb-24">
+
+    <!-- Top Header -->
+    <header class="bg-leh-navy text-white p-4 sticky top-0 z-20 shadow-md border-b-4 border-[#0066cc]">
+        <div class="max-w-md mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white text-leh-navy font-black px-2.5 py-1 rounded-lg text-sm">LEH</div>
+                <div>
+                    <h1 class="font-bold text-sm tracking-wide">Techniker-Panel</h1>
+                    <p class="text-xs text-slate-300">Alex (Team 1) • Edeka Berlin</p>
+                </div>
+            </div>
+            <div class="flex bg-slate-800 rounded-lg p-0.5 text-xs font-semibold">
+                <button id="btn-de" onclick="setLang('de')" class="bg-leh-blue text-white px-2 py-0.5 rounded">DE</button>
+                <button id="btn-ru" onclick="setLang('ru')" class="text-slate-400 px-2 py-0.5">RU</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-md mx-auto p-4 space-y-4">
+
+        <!-- Current Active Order Card -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+            <div class="flex justify-between items-center border-b pb-2">
+                <span class="text-xs font-bold text-slate-400 uppercase">Auftrag #101</span>
+                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded-full" id="txt-status">In Bearbeitung</span>
+            </div>
+
+            <div>
+                <h2 class="text-lg font-bold text-leh-navy">Kühlregal Wartung & Reparatur</h2>
+                <p class="text-xs text-slate-500"><i class="fa-solid fa-store mr-1"></i> Edeka Markt, Alexanderplatz 3</p>
+            </div>
+
+            <!-- Instruction Box with AI Translate button -->
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-slate-600"><i class="fa-solid fa-clipboard-list text-leh-blue mr-1"></i> Anweisung:</span>
+                    <button onclick="translateInstruction()" class="bg-blue-100 hover:bg-blue-200 text-leh-blue text-xs font-bold px-2 py-1 rounded-lg transition flex items-center gap-1">
+                        <i class="fa-solid fa-language"></i> <span id="btn-trans-txt">Übersetzen</span>
+                    </button>
+                </div>
+                <p id="txt-instruction" class="text-xs text-slate-700 leading-relaxed font-mono bg-white p-2.5 rounded-lg border border-slate-100">
+                    Kältemittelstand prüfen (R134a). Verdampfer-Lüfter auf Geräusche testen. Danfoss Controller Fehlerspeicher auslesen.
+                </p>
+            </div>
+
+            <!-- Workflow Checklist -->
+            <div class="space-y-2 pt-1">
+                <label class="flex items-center space-x-2 text-xs text-slate-700 cursor-pointer">
+                    <input type="checkbox" class="w-4 h-4 text-leh-blue rounded">
+                    <span>1. Foto Vorher (Anlage / Schaden)</span>
+                </label>
+                <label class="flex items-center space-x-2 text-xs text-slate-700 cursor-pointer">
+                    <input type="checkbox" class="w-4 h-4 text-leh-blue rounded">
+                    <span>2. Reparatur durchführen & Protokoll</span>
+                </label>
+                <label class="flex items-center space-x-2 text-xs text-slate-700 cursor-pointer">
+                    <input type="checkbox" class="w-4 h-4 text-leh-blue rounded">
+                    <span>3. Unterschrift vom Filialleiter</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- AI Assistant Banner Quick Launcher -->
+        <div onclick="openAiCopilot()" class="bg-gradient-to-r from-leh-navy to-blue-900 text-white p-4 rounded-2xl shadow-lg cursor-pointer flex items-center justify-between group">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-500/20 border border-blue-400/30 flex items-center justify-center text-xl">
+                    🤖
+                </div>
+                <div>
+                    <h3 class="font-bold text-sm group-hover:text-blue-200 transition" id="ai-banner-title">AI Reparatur-Assistent</h3>
+                    <p class="text-xs text-slate-300" id="ai-banner-sub">Fragen zu Fehlercodes & Bauteilen</p>
+                </div>
+            </div>
+            <i class="fa-solid fa-chevron-right text-blue-300 group-hover:translate-x-1 transition"></i>
+        </div>
+
+    </main>
+
+    <!-- AI COPILOT MODAL / CHAT WINDOW -->
+    <div id="ai-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex flex-col justify-end">
+        <div class="bg-white w-full max-w-md mx-auto h-[85vh] rounded-t-3xl shadow-2xl flex flex-col overflow-hidden">
+            
+            <!-- Modal Header -->
+            <div class="bg-leh-navy text-white p-4 flex justify-between items-center border-b border-slate-700">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 rounded-lg bg-leh-blue flex items-center justify-center text-sm font-bold">AI</div>
+                    <div>
+                        <h2 class="font-bold text-sm">Gemini Repair Copilot</h2>
+                        <span class="text-[10px] text-emerald-400 flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-ping"></span> Bereit für Diagnose
+                        </span>
+                    </div>
+                </div>
+                <button onclick="closeAiCopilot()" class="text-slate-300 hover:text-white text-lg p-1">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Chat History Area -->
+            <div id="chat-box" class="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50 text-xs">
+                
+                <!-- Welcome Message from AI -->
+                <div class="flex items-start space-x-2">
+                    <div class="w-7 h-7 rounded-full bg-leh-navy text-white flex items-center justify-center text-xs">🤖</div>
+                    <div class="bg-white p-3 rounded-2xl rounded-tl-none border border-slate-200 max-w-[80%] text-slate-800 shadow-sm space-y-1">
+                        <p class="font-bold text-leh-navy">Hallo Alex!</p>
+                        <p id="ai-welcome-txt">Ich bin dein KI-Assistent. Beschreibe das Problem, nenne den Fehlercode oder lade ein Foto des Typenschilds hoch.</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Quick Action Chips -->
+            <div class="p-2 bg-slate-100 border-t border-slate-200 flex gap-2 overflow-x-auto text-[11px] no-scrollbar">
+                <button onclick="sendQuickPrompt('Danfoss Fehler E-04')" class="bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 px-3 py-1.5 rounded-full whitespace-nowrap shadow-sm font-medium">
+                    ⚡ Danfoss Error E-04
+                </button>
+                <button onclick="sendQuickPrompt('Kältemittel R134a Druckтабеле')" class="bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 px-3 py-1.5 rounded-full whitespace-nowrap shadow-sm font-medium">
+                    📊 R134a Drucktabelle
+                </button>
+            </div>
+
+            <!-- Input Area -->
+            <div class="p-3 bg-white border-t border-slate-200 flex items-center space-x-2">
+                <label for="file-upload" class="cursor-pointer p-2.5 text-slate-400 hover:text-leh-blue transition">
+                    <i class="fa-solid fa-camera text-lg"></i>
+                    <input id="file-upload" type="file" accept="image/*" class="hidden" onchange="handlePhotoUpload(this)" />
+                </label>
+                <input id="chat-input" type="text" placeholder="Frage stellen oder Fehler eingeben..." class="flex-1 bg-slate-100 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-leh-blue" onkeypress="if(event.key==='Enter') sendMessage()" />
+                <button onclick="sendMessage()" class="bg-leh-blue text-white p-2.5 rounded-xl hover:bg-blue-700 transition">
+                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        let currentLang = 'de';
+
+        function setLang(lang) {
+            currentLang = lang;
+            const btnDe = document.getElementById('btn-de');
+            const btnRu = document.getElementById('btn-ru');
+            
+            if(lang === 'ru') {
+                btnRu.className = "bg-leh-blue text-white px-2 py-0.5 rounded";
+                btnDe.className = "text-slate-400 px-2 py-0.5";
+                document.getElementById('ai-banner-title').innerText = "ИИ Ассистент по ремонту";
+                document.getElementById('ai-banner-sub').innerText = "Вопросы по кодам ошибок и узлам";
+                document.getElementById('btn-trans-txt').innerText = "Перевести";
+                document.getElementById('ai-welcome-txt').innerText = "Привет, Алекс! Я твой ИИ-ассистент. Опиши проблему, укажи код ошибки или загрузи фото шильдика.";
+            } else {
+                btnDe.className = "bg-leh-blue text-white px-2 py-0.5 rounded";
+                btnRu.className = "text-slate-400 px-2 py-0.5";
+                document.getElementById('ai-banner-title').innerText = "AI Reparatur-Assistent";
+                document.getElementById('ai-banner-sub').innerText = "Fragen zu Fehlercodes & Bauteilen";
+                document.getElementById('btn-trans-txt').innerText = "Übersetzen";
+                document.getElementById('ai-welcome-txt').innerText = "Ich bin dein KI-Assistent. Beschreibe das Problem, nenne den Fehlercode oder lade ein Foto des Typenschilds hoch.";
+            }
+        }
+
+        function translateInstruction() {
+            const instr = document.getElementById('txt-instruction');
+            if(currentLang === 'de') {
+                instr.innerText = "Проверить уровень хладагента (R134a). Проверить вентилятор испарителя на посторонние шумы. Считать память ошибок контроллера Danfoss.";
+                setLang('ru');
+            } else {
+                instr.innerText = "Kältemittelstand prüfen (R134a). Verdampfer-Lüfter auf Geräusche testen. Danfoss Controller Fehlerspeicher auslesen.";
+                setLang('de');
+            }
+        }
+
+        function openAiCopilot() {
+            document.getElementById('ai-modal').classList.remove('hidden');
+        }
+
+        function closeAiCopilot() {
+            document.getElementById('ai-modal').classList.add('hidden');
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if(!text) return;
+
+            appendUserMessage(text);
+            input.value = '';
+
+            // Симуляция ответа Gemini AI Copilot
+            setTimeout(() => {
+                let reply = "Анализирую ваш запрос...";
+                if(text.toLowerCase().includes("e-04") || text.toLowerCase().includes("danfoss")) {
+                    reply = currentLang === 'ru' 
+                        ? "⚠️ **Danfoss Ошибка E-04**: Низкое давление в системе (Low Pressure Switch Cutout).\n\n**Рекомендуемые действия:**\n1. Проверьте утечку хладагента R134a.\n2. Убедитесь, что вентилятор испарителя работает.\n3. Проверьте датчик низкого давления."
+                        : "⚠️ **Danfoss Fehler E-04**: Niederdruckschalter ausgelöst.\n\n**Schritte zur Behebung:**\n1. R134a Kältemittel auf Leckage prüfen.\n2. Verdampferventilator auf Funktion testen.\n3. Niederdruck-Sensor prüfen.";
+                } else {
+                    reply = currentLang === 'ru'
+                        ? "Запрос принят. Для этого типа холодильного оборудования LEH рекомендуется проверить предохранители и напряжение на компрессоре."
+                        : "Anfrage empfangen. Für diese Kühlmöbel-Kategorie wird empfohlen, Sicherungen und Spannung am Kompressor zu prüfen.";
+                }
+                appendAiMessage(reply);
+            }, 800);
+        }
+
+        function sendQuickPrompt(promptText) {
+            document.getElementById('chat-input').value = promptText;
+            sendMessage();
+        }
+
+        function handlePhotoUpload(input) {
+            if(input.files && input.files[0]) {
+                appendUserMessage("📷 [Загружено фото шильдика/ошибки: " + input.files[0].name + "]");
+                setTimeout(() => {
+                    const reply = currentLang === 'ru'
+                        ? "🔍 **OCR Анализ шильдика:**\n- Модель: Danfoss Optyma Plus\n- Хладагент: R134a / R404A\n- Серийный №: 114X4201\n\n*Узел внесен в электронный протокол.*"
+                        : "🔍 **OCR Typenschild-Analyse:**\n- Modell: Danfoss Optyma Plus\n- Kältemittel: R134a / R404A\n- Serien-Nr: 114X4201\n\n*Bauteil im Protokoll erfasst.*";
+                    appendAiMessage(reply);
+                }, 1200);
+            }
+        }
+
+        function appendUserMessage(msg) {
+            const box = document.getElementById('chat-box');
+            box.innerHTML += `
+                <div class="flex items-start justify-end space-x-2">
+                    <div class="bg-leh-blue text-white p-3 rounded-2xl rounded-tr-none max-w-[80%] shadow-sm">
+                        ${msg}
+                    </div>
+                </div>
+            `;
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function appendAiMessage(msg) {
+            const box = document.getElementById('chat-box');
+            box.innerHTML += `
+                <div class="flex items-start space-x-2">
+                    <div class="w-7 h-7 rounded-full bg-leh-navy text-white flex items-center justify-center text-xs">🤖</div>
+                    <div class="bg-white p-3 rounded-2xl rounded-tl-none border border-slate-200 max-w-[80%] text-slate-800 shadow-sm space-y-1">
+                        ${msg.replace(/\n/g, '<br>')}
+                    </div>
+                </div>
+            `;
+            box.scrollTop = box.scrollHeight;
+        }
+    </script>
+</body>
+</html>
