@@ -1,0 +1,24 @@
+/* Размещение двух полей в одну строку */
+.form-row {
+  display: flex;
+  gap: 12px;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
+/* Стилизация выпадающего календаря */
+input[type="date"] {
+  font-family: inherit;
+  color: #1e293b;
+  cursor: pointer;
+}
+
+/* На мобильных устройствах делаем их друг под другом */
+@media (max-width: 400px) {
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+}

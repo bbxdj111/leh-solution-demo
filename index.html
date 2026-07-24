@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LEH Solution GmbH — Service Portal</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0f172a;
+      color: #0f172a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Верхняя брендированная шапка */
+    .app-header {
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 14px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: white;
+      font-weight: 800;
+      font-size: 18px;
+      letter-spacing: -0.5px;
+    }
+
+    .user-profile-badge {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: white;
+      font-size: 13px;
+    }
+
+    .role-indicator {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #38bdf8;
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    /* Сетка и контейнеры */
+    .main-container {
+      flex: 1;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+      border: 1px solid #e2e8f0;
+      margin-bottom: 20px;
+    }
+
+    /* Кнопки */
+    .btn {
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 13.5px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .btn-primary { background: #0284c7; color: white; }
+    .btn-primary:hover { background: #0369a1; }
+    .btn-secondary { background: rgba(255, 255, 255, 0.15); color: white; border: 1px solid rgba(255, 255, 255, 0.2); }
+    .btn-secondary:hover { background: rgba(255, 255, 255, 0.25); }
+    .btn-success { background: #10b981; color: white; }
+    .btn-danger { background: #ef4444; color: white; }
+    .btn-maps { background: #ea4335; color: white; width: 100%; }
+
+    /* Формы ввода */
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px; text-transform: uppercase; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 12px 14px; font-size: 14px; border: 1.5px solid #cbd5e1; border-radius: 8px; outline: none; background: #f8fafc;
+    }
+    .form-group input:focus, .form-group select:focus { border-color: #0284c7; background: #fff; }
+
+    /* Таблицы */
+    .orders-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .orders-table th { background: #f8fafc; padding: 12px 10px; text-align: left; color: #64748b; font-weight: 700; border-bottom: 2px solid #e2e8f0; }
+    .orders-table td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+    .orders-table tr { cursor: pointer; }
+    .orders-table tr:hover { background: #f0f9ff; }
+    .orders-table tr.selected { background: #e0f2fe; }
+
+    /* Модальное окно авторизации */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px);
+      display: flex; justify-content: center; align-items: center; z-index: 200;
+    }
+    .modal-overlay.hidden { display: none; }
+
+    .auth-card {
+      background: white; border-radius: 20px; padding: 30px; width: 100%; max-width: 440px;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+    }
+
+    .auth-tabs { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 20px; }
+    .auth-tab {
+      flex: 1; padding: 10px; text-align: center; font-weight: 700; font-size: 14px; color: #64748b;
+      cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px;
+    }
+    .auth-tab.active { color: #0284c7; border-color: #0284c7; }
+
+    .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; }
+    .badge-notfall { background: #fee2e2; color: #dc2626; }
+    .badge-inwork { background: #e0f2fe; color: #0369a1; }
+
+    /* Google Maps Box */
+    .map-container { height: 350px; border-radius: 12px; overflow: hidden; border: 2px solid #cbd5e1; }
+    .map-container iframe { width: 100%; height: 100%; border: none; }
+
+    /* Техник Мобильный вид */
+    .tech-app-frame {
+      max-width: 400px; margin: 0 auto; background: #0f172a; border-radius: 32px; padding: 20px;
+      border: 6px solid #334155; color: #f8fafc;
+    }
+    .tech-card { background: #1e293b; border-radius: 14px; padding: 16px; margin-bottom: 16px; border: 1px solid #334155; }
+    .hotel-option { background: #0f172a; border-radius: 10px; padding: 10px; margin-top: 8px; border: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 20px; right: 20px; background: #0f172a; color: white; padding: 14px 20px;
+      border-radius: 10px; border-left: 4px solid #10b981; display: none; z-index: 1000; font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Верхняя панель бренда -->
+  <header class="app-header">
+    <div class="brand">
+      <span>❄️ LEH SOLUTION GMBH</span>
+      <span style="font-size: 11px; background: #0284c7; padding: 2px 8px; border-radius: 10px;">B2B PORTAL</span>
+    </div>
+
+    <div class="user-profile-badge">
+      <span class="role-indicator" id="current-user-display">👤 Gast-Modus (Ohne Anmeldung)</span>
+      <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="openAuthModal()">Anmelden / Wechseln</button>
+    </div>
+  </header>
+
+  <main class="main-container">
+
+    <!-- ==================== ВЬЮ 1: БЫСТРАЯ ФОРМА (ГОСТЕВОЙ SOS-ВЫЗОВ) ==================== -->
+    <section id="view-guest" class="view-panel">
+      <div style="max-width: 560px; margin: 0 auto;" class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <h2 style="font-size: 20px;">🚨 Service-Auftrag (Schnell-Meldung)</h2>
+          <span style="font-size: 11px; color: #64748b; background: #f1f5f9; padding: 4px 8px; border-radius: 6px;">Ohne Registrierung</span>
+        </div>
+        <p style="color: #64748b; font-size: 13px; margin-bottom: 20px;">Direkte Störungsmeldung für Supermärkte & Handelsketten</p>
+
+        <form onsubmit="handleOrderSubmit(event)">
+          <div style="display: flex; gap: 10px;">
+            <div class="form-group" style="flex:1;">
+              <label>Handelskette *</label>
+              <select id="inp-chain" required>
+                <option value="REWE">REWE</option>
+                <option value="EDEKA">EDEKA</option>
+                <option value="ALDI Süd">ALDI Süd</option>
+                <option value="Lidl">Lidl</option>
+                <option value="Kaufland">Kaufland</option>
+              </select>
+            </div>
+            <div class="form-group" style="flex:1;">
+              <label>Filial-Nr. *</label>
+              <input type="text" id="inp-filiale" placeholder="#4081" required value="#4081">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Ansprechpartner / Name *</label>
+            <input type="text" id="inp-name" placeholder="Herr Schmidt (Marktleiter)" required value="Herr Schmidt (Marktleiter)">
+          </div>
+
+          <div class="form-group">
+            <label>Standort / Adresse *</label>
+            <input type="text" id="inp-address" placeholder="Alexanderstraße 1, 10178 Berlin" required value="Alexanderstraße 1, 10178 Berlin">
+          </div>
+
+          <div class="form-group">
+            <label>Art der Störung *</label>
+            <select id="inp-service">
+              <option value="🧊 Kühlmöbel & Tiefkühlung">🧊 Kühlmöbel & Tiefkühlung</option>
+              <option value="❄️ Klimaanlage & Lüftung">❄️ Klimaanlage & Lüftung</option>
+              <option value="⚡ Elektrotechnik">⚡ Elektrotechnik & Steuerung</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Dringlichkeit *</label>
+            <select id="inp-urgency">
+              <option value="🚨 NOTFALL">🚨 NOTFALL (Sofortige Anfahrt)</option>
+              <option value="📅 Wunschtermin">📅 Wunschtermin planen</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Beschreibung</label>
+            <textarea id="inp-desc" rows="2">Wandkühlregal Fleischabteilung Temperatur steigt.</textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px;">Sofort-Auftrag Absenden</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ==================== ВЬЮ 2: ДИСПЕТЧЕР / ШЕФ ==================== -->
+    <section id="view-boss" class="view-panel" style="display:none;">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+          <div>
+            <h2 style="font-size: 20px;">🖥️ Disponenten-Dashboard (Leitung LEH Solution)</h2>
+            <p style="font-size: 13px; color: #64748b;">Echtzeit-Übersicht aller Einsätze in Deutschland</p>
+          </div>
+          <button class="btn btn-success" onclick="triggerAIRouting()">🤖 ИИ-Маршрутизация (Google Maps API)</button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1.1fr; gap: 20px;">
+          <div>
+            <table class="orders-table">
+              <thead>
+                <tr>
+                  <th>ID / Kunde</th>
+                  <th>Dringlichkeit</th>
+                  <th>Techniker</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="crm-table-body"></tbody>
+            </table>
+          </div>
+
+          <div>
+            <div style="font-weight: 700; font-size: 13px; margin-bottom: 8px; color: #334155; display: flex; justify-content: space-between;">
+              <span>📍 Standort auf Google Maps Live:</span>
+              <span id="selected-address-text" style="color: #0284c7;">-</span>
+            </div>
+            <div class="map-container">
+              <iframe id="google-map-iframe" src="https://maps.google.com/maps?q=Alexanderstraße%201,%2010178%20Berlin&t=&z=14&ie=UTF8&iwloc=&output=embed"></iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== ВЬЮ 3: КАБИНЕТ ТЕХНИКА / ВОДИТЕЛЯ ==================== -->
+    <section id="view-tech" class="view-panel" style="display:none;">
+      <div class="tech-app-frame">
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #334155; padding-bottom:12px; margin-bottom:15px;">
+          <div>
+            <div style="font-size: 10px; color: #0284c7; font-weight: 800;">TECHNIKER APP</div>
+            <div style="font-size: 16px; font-weight: 800;" id="tech-user-name">Thomas Müller 👋</div>
+          </div>
+          <span class="badge badge-inwork">🟢 В пути</span>
+        </div>
+
+        <div id="tech-active-order-card" class="tech-card"></div>
+
+        <div class="tech-card" style="border-color: #0284c7;">
+          <div style="font-size: 13px; font-weight: 800; color: #38bdf8; margin-bottom: 4px;">🏨 ИИ-Поиск Отеля (15 км)</div>
+          <p style="font-size: 11px; color: #94a3b8; margin-bottom: 10px;">Автоматический выбор для ночевки:</p>
+
+          <div class="hotel-option">
+            <div>
+              <div style="font-size: 12px; font-weight: 700;">B&B Hotel Berlin-Mitte</div>
+              <div style="font-size: 10px; color: #94a3b8;">⭐ 4.6 | 1.8 км от объекта</div>
+            </div>
+            <button class="btn btn-primary" style="padding: 6px 10px; font-size: 11px;" onclick="bookHotel('B&B Hotel Berlin', 85)">85 € / Бронь</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== МОДАЛЬНОЕ ОКНО АВТОРИЗАЦИИ И РЕГИСТРАЦИИ ==================== -->
+  <div id="auth-modal" class="modal-overlay hidden">
+    <div class="auth-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h3 style="font-size: 18px;">LEH Solution Zugangsportal</h3>
+        <button onclick="closeAuthModal()" style="background:none; border:none; font-size:18px; cursor:pointer;">✕</button>
+      </div>
+
+      <div class="auth-tabs">
+        <div class="auth-tab active" onclick="switchAuthTab('login')">Anmelden (Вход)</div>
+        <div class="auth-tab" onclick="switchAuthTab('register')">Registrieren (Регистрация)</div>
+      </div>
+
+      <!-- ФОРМА ВХОДА -->
+      <div id="auth-form-login">
+        <div class="form-group">
+          <label>Rolle Wählen (Выберите роль):</label>
+          <select id="login-role">
+            <option value="guest">⚡ Gast / SOS-Meldung (Без входа)</option>
+            <option value="client">🏢 Kunde / Marktleiter (REWE/Edeka)</option>
+            <option value="tech">🚚 Techniker / Fahrer (Мастер)</option>
+            <option value="boss">👔 Disponent / Chef (Руководство)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>E-Mail / Benutzername</label>
+          <input type="text" placeholder="z.B. t.mueller@leh-solution.de" id="login-email">
+        </div>
+
+        <button class="btn btn-primary" style="width: 100%; padding: 12px;" onclick="processLogin()">Einloggen / Вход</button>
+      </div>
+
+      <!-- ФОРМА РЕГИСТРАЦИИ -->
+      <div id="auth-form-register" style="display: none;">
+        <div class="form-group">
+          <label>Ich bin (Я регистрируюсь как):</label>
+          <select id="reg-role">
+            <option value="client">🏢 Kunde (Marktleiter / REWE / Edeka)</option>
+            <option value="tech">🚚 Techniker / Fahrer (Выездной мастер)</option>
+            <option value="boss">👔 Disponent (Сотрудник офиса)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Vor- & Nachname *</label>
+          <input type="text" id="reg-name" placeholder="z.B. Alex Weber">
+        </div>
+
+        <div class="form-group">
+          <label>E-Mail Adresse *</label>
+          <input type="email" id="reg-email" placeholder="name@firma.de">
+        </div>
+
+        <button class="btn btn-success" style="width: 100%; padding: 12px;" onclick="processRegister()">Konto Erstellen (Зарегистрироваться)</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast">✅ Erfolgreich</div>
+
+  <script>
+    // Стартовая база данных заказов
+    const initialOrders = [
+      { id: "LEH-2026-081", chain: "REWE", filiale: "#4081", contact: "Herr Schmidt", address: "Alexanderstraße 1, 10178 Berlin", service: "🧊 Kühlmöbel", urgency: "🚨 NOTFALL", desc: "Wandkühlregal auf +12°C.", tech: "Thomas Müller", status: "In Bearbeitung" },
+      { id: "LEH-2026-080", chain: "EDEKA", filiale: "#1092", contact: "Frau Weber", address: "Hauptstraße 12, 14467 Potsdam", service: "❄️ Klimaanlage", urgency: "📅 Wunschtermin", desc: "Wartung Klimaanlage.", tech: "Alex Weber", status: "Zugewiesen" }
+    ];
+
+    let currentUser = { role: 'guest', name: 'Gast-Modus' };
+    let selectedOrderId = "LEH-2026-081";
+
+    function getOrders() {
+      const stored = localStorage.getItem('leh_orders');
+      return stored ? JSON.parse(stored) : initialOrders;
+    }
+
+    function saveOrders(orders) {
+      localStorage.setItem('leh_orders', JSON.stringify(orders));
+      renderCRMTable();
+      renderTechView();
+    }
+
+    // Модальное окно авторизации
+    function openAuthModal() { document.getElementById('auth-modal').classList.remove('hidden'); }
+    function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
+
+    function switchAuthTab(tab) {
+      document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+      if (tab === 'login') {
+        document.querySelectorAll('.auth-tab')[0].classList.add('active');
+        document.getElementById('auth-form-login').style.display = 'block';
+        document.getElementById('auth-form-register').style.display = 'none';
+      } else {
+        document.querySelectorAll('.auth-tab')[1].classList.add('active');
+        document.getElementById('auth-form-login').style.display = 'none';
+        document.getElementById('auth-form-register').style.display = 'block';
+      }
+    }
+
+    // Вход
+    function processLogin() {
+      const role = document.getElementById('login-role').value;
+      const email = document.getElementById('login-email').value || 'User';
+
+      currentUser = { role: role, name: email.split('@')[0] };
+      updateUserUI();
+      closeAuthModal();
+      showToast(`Eingeloggt als: ${currentUser.name} (${role.toUpperCase()})`);
+    }
+
+    // Регистрация
+    function processRegister() {
+      const role = document.getElementById('reg-role').value;
+      const name = document.getElementById('reg-name').value || 'Neuer Benutzer';
+
+      currentUser = { role: role, name: name };
+      updateUserUI();
+      closeAuthModal();
+      showToast(`Konto erstellt! Willkommen, ${name}`);
+    }
+
+    // Обновление интерфейса под роль
+    function updateUserUI() {
+      const label = document.getElementById('current-user-display');
+      label.textContent = `👤 ${currentUser.name} [${currentUser.role.toUpperCase()}]`;
+
+      document.querySelectorAll('.view-panel').forEach(p => p.style.display = 'none');
+
+      if (currentUser.role === 'boss') {
+        document.getElementById('view-boss').style.display = 'block';
+        renderCRMTable();
+      } else if (currentUser.role === 'tech') {
+        document.getElementById('view-tech').style.display = 'block';
+        document.getElementById('tech-user-name').textContent = `${currentUser.name} 👋`;
+        renderTechView();
+      } else {
+        document.getElementById('view-guest').style.display = 'block';
+      }
+    }
+
+    // Обработка новой заявки
+    function handleOrderSubmit(e) {
+      e.preventDefault();
+      const orders = getOrders();
+
+      const newOrder = {
+        id: `LEH-2026-08${orders.length + 1}`,
+        chain: document.getElementById('inp-chain').value,
+        filiale: document.getElementById('inp-filiale').value,
+        contact: document.getElementById('inp-name').value,
+        address: document.getElementById('inp-address').value,
+        service: document.getElementById('inp-service').value,
+        urgency: document.getElementById('inp-urgency').value,
+        desc: document.getElementById('inp-desc').value,
+        tech: "Thomas Müller",
+        status: "Neu / Dispo"
+      };
+
+      orders.unshift(newOrder);
+      saveOrders(orders);
+      showToast(`✅ Auftrag ${newOrder.id} gesendet!`);
+    }
+
+    function renderCRMTable() {
+      const orders = getOrders();
+      const tbody = document.getElementById('crm-table-body');
+      tbody.innerHTML = '';
+
+      orders.forEach(o => {
+        const tr = document.createElement('tr');
+        if (o.id === selectedOrderId) tr.classList.add('selected');
+        tr.onclick = () => { selectedOrderId = o.id; renderCRMTable(); };
+
+        tr.innerHTML = `
+          <td><b>${o.id}</b><br><span style="color:#64748b;">${o.chain} (${o.filiale})</span></td>
+          <td><span class="badge ${o.urgency.includes('NOTFALL') ? 'badge-notfall' : 'badge-inwork'}">${o.urgency}</span></td>
+          <td><b>${o.tech}</b></td>
+          <td><span style="font-size:11px; font-weight:700;">${o.status}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      const active = orders.find(o => o.id === selectedOrderId) || orders[0];
+      if (active) {
+        document.getElementById('selected-address-text').textContent = active.address;
+        document.getElementById('google-map-iframe').src = `https://maps.google.com/maps?q=${encodeURIComponent(active.address)}&t=&z=14&ie=UTF8&iwloc=&output=embed`;
+      }
+    }
+
+    function renderTechView() {
+      const orders = getOrders();
+      const active = orders.find(o => o.id === selectedOrderId) || orders[0];
+      const card = document.getElementById('tech-active-order-card');
+
+      if (active) {
+        card.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span class="badge badge-notfall">${active.urgency}</span>
+            <span style="font-size:11px; color:#94a3b8;">${active.id}</span>
+          </div>
+          <div style="font-weight:800; font-size:15px;">${active.chain} (${active.filiale})</div>
+          <div style="font-size:12px; color:#94a3b8; margin-bottom:8px;">📍 ${active.address}</div>
+          <a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(active.address)}" target="_blank" class="btn btn-maps">📍 Google Навигатор</a>
+        `;
+      }
+    }
+
+    function bookHotel(hotel, price) { showToast(`🏨 Отель ${hotel} забронирован (${price}€)!`); }
+    function triggerAIRouting() { showToast("🤖 ИИ-Маршрутизатор: Оптимальный путь построен!"); }
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg; toast.style.display = 'block';
+      setTimeout(() => toast.style.display = 'none', 3000);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => { updateUserUI(); });
+  </script>
+</body>
+</html>
