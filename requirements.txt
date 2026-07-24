@@ -2,4 +2,4 @@ fastapi
 uvicorn
 aiofiles
 jinja2
-python-doten
+python-dotenv
