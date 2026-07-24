@@ -1,7 +1,6 @@
-Plaintext
 fastapi
-uvicorn
+uvicorn[standard]
+websockets
+google-genai
+requests
 sqlalchemy
-pydantic
-python-dotenv
-groq
