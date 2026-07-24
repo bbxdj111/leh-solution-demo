@@ -1,21 +1,25 @@
 import os
+from pathlib import Path
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 
-# Определяем путь к папке frontend
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-FRONTEND_DIR = os.path.join(BASE_DIR, "..", "frontend")
+# Определяем точный абсолютный путь к папке frontend
+BASE_DIR = Path(__file__).resolve().parent  # папка backend
+FRONTEND_DIR = BASE_DIR.parent / "frontend" # папка frontend на уровень выше
 
-# Роут для Клиента (Live-Tracking)
 @app.get("/")
 @app.get("/client_track")
 async def read_client_track():
-    return FileResponse(os.path.join(FRONTEND_DIR, "client_track.html"))
+    file_path = FRONTEND_DIR / "client_track.html"
+    if not file_path.exists():
+        return {"error": f"Файл не найден по пути: {file_path}"}
+    return FileResponse(file_path)
 
-# Роут для Техника (Worker + AI Copilot)
 @app.get("/worker")
 async def read_worker():
-    return FileResponse(os.path.join(FRONTEND_DIR, "worker.html"))
+    file_path = FRONTEND_DIR / "worker.html"
+    if not file_path.exists():
+        return {"error": f"Файл не найден по пути: {file_path}"}
+    return FileResponse(file_path)

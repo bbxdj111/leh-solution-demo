@@ -1,7 +1,4 @@
 fastapi
-uvicorn[standard]
-websockets
-google-genai
-requests
-sqlalchemy
-twilio
+uvicorn
+aiofiles
+jinja2
