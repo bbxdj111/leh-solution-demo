@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotelbuchung für Handwerker</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        h1, h2, h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        input, select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .btn-primary {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 15px;
+        }
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+        .btn-success {
+            background: #2ecc71;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-success:hover {
+            background: #27ae60;
+        }
+        .hotel-card {
+            border: 1px solid #e1e8ed;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fafafa;
+        }
+        .hotel-info h4 {
+            margin: 0 0 5px 0;
+            color: #2c3e50;
+        }
+        .hotel-info p {
+            margin: 2px 0;
+            color: #666;
+            font-size: 14px;
+        }
+        .price-tag {
+            font-size: 18px;
+            font-weight: bold;
+            color: #27ae60;
+        }
+        .booking-card {
+            border-left: 4px solid #3498db;
+            background: #f0f8ff;
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🏨 Hotelbuchung für Handwerker</h1>
+        <p>Buchen Sie Unterkünfte für Handwerker bei Auswärtseinsätzen.</p>
+
+        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+
+        <h2>1. Einsatzdetails eingeben</h2>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Handwerker auswählen:</label>
+                <select id="masterSelect">
+                    <option value="">Handwerker werden geladen...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Stadt / Einsatzort:</label>
+                <input type="text" id="cityInput" value="Berlin">
+            </div>
+            <div class="form-group">
+                <label>Anreise (Check-in):</label>
+                <input type="date" id="checkInInput">
+            </div>
+            <div class="form-group">
+                <label>Abreise (Check-out):</label>
+                <input type="date" id="checkOutInput">
+            </div>
+        </div>
+
+        <button class="btn-primary" style="width: 100%;" onclick="searchHotels()">🔍 Verfügbare Hotels suchen</button>
+
+        <hr style="margin: 25px 0; border: 0; border-top: 1px solid #eee;">
+
+        <h2>2. Verfügbare Hotels</h2>
+        <div id="hotelsList">
+            <p style="color: #777;">Geben Sie oben die Daten ein und klicken Sie auf "Hotels suchen".</p>
+        </div>
+
+        <hr style="margin: 25px 0; border: 0; border-top: 1px solid #eee;">
+
+        <h2>📋 Bereits gebuchte Hotels</h2>
+        <div id="bookingsList">
+            <p style="color: #777;">Lade Buchungsübersicht...</p>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://127.0.0.1:8000";
+
+        document.addEventListener("DOMContentLoaded", () => {
+            // Устанавливаем даты по умолчанию (сегодня и завтра)
+            const today = new Date().toISOString().split('T')[0];
+            const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+            document.getElementById("checkInInput").value = today;
+            document.getElementById("checkOutInput").value = tomorrow;
+
+            loadMasters();
+            loadBookings();
+        });
+
+        // 1. Загрузка списка мастеров
+        async function loadMasters() {
+            const select = document.getElementById("masterSelect");
+            try {
+                const res = await fetch(`${API_URL}/admin/masters`);
+                const masters = await res.json();
+                select.innerHTML = masters.map(m => `<option value="${m.id}">${m.username}</option>`).join('');
+            } catch (e) {
+                select.innerHTML = '<option value="">Fehler beim Laden</option>';
+            }
+        }
+
+        // 2. Поиск отелей
+        async function searchHotels() {
+            const city = document.getElementById("cityInput").value;
+            const container = document.getElementById("hotelsList");
+
+            try {
+                const res = await fetch(`${API_URL}/admin/hotels/search?city=${encodeURIComponent(city)}`);
+                const hotels = await res.json();
+
+                container.innerHTML = hotels.map(h => `
+                    <div class="hotel-card">
+                        <div class="hotel-info">
+                            <h4>${h.name} <small style="color:#f39c12;">${h.rating}</small></h4>
+                            <p>📍 ${h.address}</p>
+                            <p class="price-tag">${h.price_per_night} € / Nacht</p>
+                        </div>
+                        <div>
+                            <button class="btn-success" onclick="bookHotel('${h.name}', '${h.address}', ${h.price_per_night})">
+                                🏨 Jetzt buchen
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                container.innerHTML = '<p style="color:red;">Fehler bei der Hotelsuche.</p>';
+            }
+        }
+
+        // 3. Бронирование выбранного отеля
+        async function bookHotel(hotelName, address, price) {
+            const masterId = document.getElementById("masterSelect").value;
+            const checkIn = document.getElementById("checkInInput").value;
+            const checkOut = document.getElementById("checkOutInput").value;
+
+            if (!masterId) return alert("Bitte wählen Sie einen Handwerker aus!");
+
+            const res = await fetch(`${API_URL}/admin/hotels/book`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    master_id: parseInt(masterId),
+                    hotel_name: hotelName,
+                    city_or_address: address,
+                    check_in: checkIn,
+                    check_out: checkOut,
+                    price: price
+                })
+            });
+
+            if (res.ok) {
+                alert(`Hotel "${hotelName}" erfolgreich für den Handwerker gebucht!`);
+                loadBookings();
+            } else {
+                alert("Fehler bei der Hotelbuchung.");
+            }
+        }
+
+        // 4. Просмотр списка уже забронированных отелей
+        async function loadBookings() {
+            const container = document.getElementById("bookingsList");
+            try {
+                const res = await fetch(`${API_URL}/admin/hotels/bookings`);
+                const bookings = await res.json();
+
+                if (bookings.length === 0) {
+                    container.innerHTML = '<p style="color:#777;">Noch keine Hotelbuchungen vorhanden.</p>';
+                    return;
+                }
+
+                container.innerHTML = bookings.map(b => `
+                    <div class="booking-card">
+                        <b>👷 Handwerker:</b> ${b.master_name} | <b>🏨 Hotel:</b> ${b.hotel_name}<br>
+                        <small>📍 ${b.city_or_address} | 📅 ${b.check_in} bis ${b.check_out} | 💰 ${b.price} €</small>
+                    </div>
+                `).join('');
+            } catch (e) {
+                container.innerHTML = '<p style="color:red;">Fehler beim Laden der Buchungen.</p>';
+            }
+        }
+    </script>
+</body>
+</html>
