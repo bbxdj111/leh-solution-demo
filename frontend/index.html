@@ -3,44 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LEH-Solution | Service & Ladenbau Portal</title>
+    <title>LEH-Solution | Service & Ladenbau Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background-color: #0c2340; font-family: system-ui, -apple-system, sans-serif; }
-        .bg-leh-navy { background-color: #0c2340; }
-        .bg-leh-blue { background-color: #0066cc; }
-        .text-leh-blue { color: #0066cc; }
     </style>
 </head>
 <body class="min-h-screen text-white flex flex-col justify-between p-4 md:p-8">
 
-    <!-- Header -->
+    <!-- Header / Шапка -->
     <header class="max-w-4xl mx-auto w-full flex justify-between items-center py-4 border-b border-slate-700/60">
         <div class="flex items-center space-x-3">
-            <div class="bg-white text-leh-navy font-black text-xl px-3 py-1 rounded-xl shadow-md tracking-wide">
+            <div class="bg-white text-[#0066cc] font-black text-xl px-3.5 py-1 rounded-xl shadow-md tracking-wider">
                 LEH
             </div>
             <div>
-                <h1 class="font-bold text-lg tracking-wide">LEH-Solution</h1>
-                <p class="text-xs text-slate-400">Instandhaltung & Ladenbau Digital</p>
+                <h1 class="font-bold text-lg tracking-wide text-white leading-tight">LEH-Solution</h1>
+                <p class="text-xs text-slate-300 font-light">Service & Ladenbau Digital</p>
             </div>
         </div>
 
-        <div class="flex bg-slate-800 rounded-lg p-0.5 text-xs font-semibold border border-slate-700">
-            <button id="btn-de" onclick="setLang('de')" class="bg-leh-blue text-white px-3 py-1 rounded-md transition">DE</button>
+        <div class="flex bg-slate-800 rounded-xl p-0.5 text-xs font-semibold border border-slate-700 shadow-inner">
+            <button id="btn-de" onclick="setLang('de')" class="bg-[#0066cc] text-white px-3 py-1 rounded-lg transition">DE</button>
             <button id="btn-ru" onclick="setLang('ru')" class="text-slate-400 hover:text-white px-3 py-1 transition">RU</button>
         </div>
     </header>
 
-    <!-- Main Content Hub -->
+    <!-- Main Hub / Главный блок выбора -->
     <main class="max-w-4xl mx-auto w-full my-auto py-10 space-y-8">
 
         <div class="text-center space-y-3">
             <span class="bg-blue-500/10 border border-blue-400/30 text-blue-400 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest">
-                Service Portal 2026
+                Service Platform
             </span>
-            <h2 id="hub-title" class="text-3xl md:text-5xl font-black tracking-tight">
+            <h2 id="hub-title" class="text-3xl md:text-5xl font-black tracking-tight text-white">
                 Willkommen beim LEH Service-Portal
             </h2>
             <p id="hub-subtitle" class="text-slate-300 text-sm md:text-base max-w-xl mx-auto font-light">
@@ -50,10 +47,10 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
 
-            <!-- Card 1: Client Tracking -->
-            <a href="/client_track" class="group bg-slate-800/80 hover:bg-slate-800 border border-slate-700 hover:border-leh-blue p-6 rounded-3xl transition duration-300 shadow-xl flex flex-col justify-between">
+            <!-- Card 1: Client Live Tracking -->
+            <a href="/client_track" class="group bg-slate-800/80 hover:bg-slate-800 border border-slate-700 hover:border-[#0066cc] p-6 rounded-3xl transition duration-300 shadow-xl flex flex-col justify-between">
                 <div class="space-y-4">
-                    <div class="w-12 h-12 rounded-2xl bg-blue-500/20 text-leh-blue flex items-center justify-center text-2xl group-hover:scale-110 transition">
+                    <div class="w-12 h-12 rounded-2xl bg-blue-500/20 text-[#0066cc] flex items-center justify-center text-2xl group-hover:scale-110 transition">
                         <i class="fa-solid fa-map-location-dot"></i>
                     </div>
                     <div>
@@ -65,7 +62,7 @@
                         </p>
                     </div>
                 </div>
-                <div class="mt-6 flex items-center text-xs font-bold text-leh-blue space-x-2">
+                <div class="mt-6 flex items-center text-xs font-bold text-[#0066cc] space-x-2">
                     <span id="card1-btn">Karte öffnen</span>
                     <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition"></i>
                 </div>
@@ -97,8 +94,8 @@
     </main>
 
     <!-- Footer -->
-    <footer class="max-w-4xl mx-auto w-full text-center text-xs text-slate-500 border-t border-slate-800 pt-4">
-        © 2026 LEH-Solution • Intelligente Lösungen für Kältetechnik & Ladenbau
+    <footer class="max-w-4xl mx-auto w-full text-center text-xs text-slate-500 border-t border-slate-800/80 pt-4">
+        © 2026 LEH-Solution • Instandhaltung & Ladenbau in Perfektion
     </footer>
 
     <script>
@@ -107,7 +104,7 @@
             const btnRu = document.getElementById('btn-ru');
 
             if (lang === 'ru') {
-                btnRu.className = "bg-leh-blue text-white px-3 py-1 rounded-md transition";
+                btnRu.className = "bg-[#0066cc] text-white px-3 py-1 rounded-lg transition";
                 btnDe.className = "text-slate-400 hover:text-white px-3 py-1 transition";
 
                 document.getElementById('hub-title').innerText = "Добро пожаловать в сервис-портал LEH";
@@ -121,7 +118,7 @@
                 document.getElementById('card2-desc').innerText = "Управление заказами, чек-листы, переводы и ИИ-помощник Gemini для диагностики поломок.";
                 document.getElementById('card2-btn').innerText = "Запустить панель";
             } else {
-                btnDe.className = "bg-leh-blue text-white px-3 py-1 rounded-md transition";
+                btnDe.className = "bg-[#0066cc] text-white px-3 py-1 rounded-lg transition";
                 btnRu.className = "text-slate-400 hover:text-white px-3 py-1 transition";
 
                 document.getElementById('hub-title').innerText = "Willkommen beim LEH Service-Portal";

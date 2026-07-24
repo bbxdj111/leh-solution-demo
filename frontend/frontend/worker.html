@@ -8,34 +8,33 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background-color: #f4f7f9; font-family: system-ui, -apple-system, sans-serif; }
-        .bg-leh-navy { background-color: #0c2340; }
-        .bg-leh-blue { background-color: #0066cc; }
-        .text-leh-navy { color: #0c2340; }
-        .text-leh-blue { color: #0066cc; }
     </style>
 </head>
-<body class="min-h-screen pb-24">
+<body class="min-h-screen pb-20">
 
-    <!-- Top Header -->
-    <header class="bg-leh-navy text-white p-4 sticky top-0 z-20 shadow-md border-b-4 border-[#0066cc]">
+    <!-- Header / Шапка с логотипом -->
+    <header class="bg-[#0c2340] text-white p-4 sticky top-0 z-20 shadow-md border-b-4 border-[#0066cc]">
         <div class="max-w-md mx-auto flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <div class="bg-white text-leh-navy font-black px-2.5 py-1 rounded-lg text-sm">LEH</div>
+                <a href="/" class="bg-white text-[#0066cc] font-black px-3 py-1 rounded-xl text-base tracking-wider hover:bg-slate-100 transition shadow">
+                    LEH
+                </a>
                 <div>
-                    <h1 class="font-bold text-sm tracking-wide">Techniker-Panel</h1>
-                    <p class="text-xs text-slate-300">Alex (Team 1) • Edeka Berlin</p>
+                    <h1 class="font-bold text-sm tracking-wide text-white">Techniker-Panel</h1>
+                    <p class="text-[11px] text-slate-300">Alex (Team 1) • Edeka Berlin</p>
                 </div>
             </div>
-            <div class="flex bg-slate-800 rounded-lg p-0.5 text-xs font-semibold">
-                <button id="btn-de" onclick="setLang('de')" class="bg-leh-blue text-white px-2 py-0.5 rounded">DE</button>
+            <div class="flex bg-slate-800 rounded-lg p-0.5 text-xs font-semibold border border-slate-700">
+                <button id="btn-de" onclick="setLang('de')" class="bg-[#0066cc] text-white px-2 py-0.5 rounded">DE</button>
                 <button id="btn-ru" onclick="setLang('ru')" class="text-slate-400 px-2 py-0.5">RU</button>
             </div>
         </div>
     </header>
 
+    <!-- Main Content -->
     <main class="max-w-md mx-auto p-4 space-y-4">
 
-        <!-- Current Active Order Card -->
+        <!-- Job Card -->
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
             <div class="flex justify-between items-center border-b pb-2">
                 <span class="text-xs font-bold text-slate-400 uppercase">Auftrag #101</span>
@@ -43,15 +42,14 @@
             </div>
 
             <div>
-                <h2 class="text-lg font-bold text-leh-navy">Kühlregal Wartung & Reparatur</h2>
-                <p class="text-xs text-slate-500"><i class="fa-solid fa-store mr-1"></i> Edeka Markt, Alexanderplatz 3</p>
+                <h2 class="text-lg font-bold text-[#0c2340]">Kühlregal Wartung & Reparatur</h2>
+                <p class="text-xs text-slate-500"><i class="fa-solid fa-store mr-1 text-[#0066cc]"></i> Edeka Markt, Alexanderplatz 3</p>
             </div>
 
-            <!-- Instruction Box with AI Translate button -->
             <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
                 <div class="flex justify-between items-center">
-                    <span class="text-xs font-bold text-slate-600"><i class="fa-solid fa-clipboard-list text-leh-blue mr-1"></i> Anweisung:</span>
-                    <button onclick="translateInstruction()" class="bg-blue-100 hover:bg-blue-200 text-leh-blue text-xs font-bold px-2 py-1 rounded-lg transition flex items-center gap-1">
+                    <span class="text-xs font-bold text-slate-600"><i class="fa-solid fa-clipboard-list text-[#0066cc] mr-1"></i> Anweisung:</span>
+                    <button onclick="translateInstruction()" class="bg-blue-100 hover:bg-blue-200 text-[#0066cc] text-xs font-bold px-2 py-1 rounded-lg transition flex items-center gap-1">
                         <i class="fa-solid fa-language"></i> <span id="btn-trans-txt">Übersetzen</span>
                     </button>
                 </div>
@@ -60,25 +58,24 @@
                 </p>
             </div>
 
-            <!-- Workflow Checklist -->
             <div class="space-y-2 pt-1">
                 <label class="flex items-center space-x-2 text-xs text-slate-700 cursor-pointer">
-                    <input type="checkbox" class="w-4 h-4 text-leh-blue rounded">
+                    <input type="checkbox" class="w-4 h-4 text-[#0066cc] rounded">
                     <span>1. Foto Vorher (Anlage / Schaden)</span>
                 </label>
                 <label class="flex items-center space-x-2 text-xs text-slate-700 cursor-pointer">
-                    <input type="checkbox" class="w-4 h-4 text-leh-blue rounded">
+                    <input type="checkbox" class="w-4 h-4 text-[#0066cc] rounded">
                     <span>2. Reparatur durchführen & Protokoll</span>
                 </label>
                 <label class="flex items-center space-x-2 text-xs text-slate-700 cursor-pointer">
-                    <input type="checkbox" class="w-4 h-4 text-leh-blue rounded">
+                    <input type="checkbox" class="w-4 h-4 text-[#0066cc] rounded">
                     <span>3. Unterschrift vom Filialleiter</span>
                 </label>
             </div>
         </div>
 
-        <!-- AI Assistant Banner Quick Launcher -->
-        <div onclick="openAiCopilot()" class="bg-gradient-to-r from-leh-navy to-blue-900 text-white p-4 rounded-2xl shadow-lg cursor-pointer flex items-center justify-between group">
+        <!-- AI Copilot Banner Trigger -->
+        <div onclick="openAiCopilot()" class="bg-gradient-to-r from-[#0c2340] to-blue-900 text-white p-4 rounded-2xl shadow-lg cursor-pointer flex items-center justify-between group border border-slate-700">
             <div class="flex items-center space-x-3">
                 <div class="w-10 h-10 rounded-xl bg-blue-500/20 border border-blue-400/30 flex items-center justify-center text-xl">
                     🤖
@@ -93,14 +90,13 @@
 
     </main>
 
-    <!-- AI COPILOT MODAL / CHAT WINDOW -->
+    <!-- AI Copilot Modal Window -->
     <div id="ai-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex flex-col justify-end">
         <div class="bg-white w-full max-w-md mx-auto h-[85vh] rounded-t-3xl shadow-2xl flex flex-col overflow-hidden">
             
-            <!-- Modal Header -->
-            <div class="bg-leh-navy text-white p-4 flex justify-between items-center border-b border-slate-700">
+            <div class="bg-[#0c2340] text-white p-4 flex justify-between items-center border-b border-slate-700">
                 <div class="flex items-center space-x-2">
-                    <div class="w-8 h-8 rounded-lg bg-leh-blue flex items-center justify-center text-sm font-bold">AI</div>
+                    <div class="w-8 h-8 rounded-lg bg-[#0066cc] flex items-center justify-center text-xs font-bold text-white">AI</div>
                     <div>
                         <h2 class="font-bold text-sm">Gemini Repair Copilot</h2>
                         <span class="text-[10px] text-emerald-400 flex items-center gap-1">
@@ -113,38 +109,35 @@
                 </button>
             </div>
 
-            <!-- Chat History Area -->
+            <!-- Chat Container -->
             <div id="chat-box" class="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50 text-xs">
-                
-                <!-- Welcome Message from AI -->
                 <div class="flex items-start space-x-2">
-                    <div class="w-7 h-7 rounded-full bg-leh-navy text-white flex items-center justify-center text-xs">🤖</div>
+                    <div class="w-7 h-7 rounded-full bg-[#0c2340] text-white flex items-center justify-center text-xs">🤖</div>
                     <div class="bg-white p-3 rounded-2xl rounded-tl-none border border-slate-200 max-w-[80%] text-slate-800 shadow-sm space-y-1">
-                        <p class="font-bold text-leh-navy">Hallo Alex!</p>
+                        <p class="font-bold text-[#0c2340]">Hallo Alex!</p>
                         <p id="ai-welcome-txt">Ich bin dein KI-Assistent. Beschreibe das Problem, nenne den Fehlercode oder lade ein Foto des Typenschilds hoch.</p>
                     </div>
                 </div>
-
             </div>
 
-            <!-- Quick Action Chips -->
+            <!-- Quick Prompts -->
             <div class="p-2 bg-slate-100 border-t border-slate-200 flex gap-2 overflow-x-auto text-[11px] no-scrollbar">
                 <button onclick="sendQuickPrompt('Danfoss Fehler E-04')" class="bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 px-3 py-1.5 rounded-full whitespace-nowrap shadow-sm font-medium">
                     ⚡ Danfoss Error E-04
                 </button>
-                <button onclick="sendQuickPrompt('Kältemittel R134a Druckтабеле')" class="bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 px-3 py-1.5 rounded-full whitespace-nowrap shadow-sm font-medium">
+                <button onclick="sendQuickPrompt('Kältemittel R134a Drucktabelle')" class="bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 px-3 py-1.5 rounded-full whitespace-nowrap shadow-sm font-medium">
                     📊 R134a Drucktabelle
                 </button>
             </div>
 
-            <!-- Input Area -->
+            <!-- Input Bar -->
             <div class="p-3 bg-white border-t border-slate-200 flex items-center space-x-2">
-                <label for="file-upload" class="cursor-pointer p-2.5 text-slate-400 hover:text-leh-blue transition">
+                <label for="file-upload" class="cursor-pointer p-2.5 text-slate-400 hover:text-[#0066cc] transition">
                     <i class="fa-solid fa-camera text-lg"></i>
                     <input id="file-upload" type="file" accept="image/*" class="hidden" onchange="handlePhotoUpload(this)" />
                 </label>
-                <input id="chat-input" type="text" placeholder="Frage stellen oder Fehler eingeben..." class="flex-1 bg-slate-100 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-leh-blue" onkeypress="if(event.key==='Enter') sendMessage()" />
-                <button onclick="sendMessage()" class="bg-leh-blue text-white p-2.5 rounded-xl hover:bg-blue-700 transition">
+                <input id="chat-input" type="text" placeholder="Frage stellen oder Fehler eingeben..." class="flex-1 bg-slate-100 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#0066cc]" onkeypress="if(event.key==='Enter') sendMessage()" />
+                <button onclick="sendMessage()" class="bg-[#0066cc] text-white p-2.5 rounded-xl hover:bg-blue-700 transition">
                     <i class="fa-solid fa-paper-plane text-xs"></i>
                 </button>
             </div>
@@ -152,7 +145,6 @@
         </div>
     </div>
 
-    <!-- JavaScript Logic -->
     <script>
         let currentLang = 'de';
 
@@ -162,14 +154,14 @@
             const btnRu = document.getElementById('btn-ru');
             
             if(lang === 'ru') {
-                btnRu.className = "bg-leh-blue text-white px-2 py-0.5 rounded";
+                btnRu.className = "bg-[#0066cc] text-white px-2 py-0.5 rounded";
                 btnDe.className = "text-slate-400 px-2 py-0.5";
                 document.getElementById('ai-banner-title').innerText = "ИИ Ассистент по ремонту";
                 document.getElementById('ai-banner-sub').innerText = "Вопросы по кодам ошибок и узлам";
                 document.getElementById('btn-trans-txt').innerText = "Перевести";
                 document.getElementById('ai-welcome-txt').innerText = "Привет, Алекс! Я твой ИИ-ассистент. Опиши проблему, укажи код ошибки или загрузи фото шильдика.";
             } else {
-                btnDe.className = "bg-leh-blue text-white px-2 py-0.5 rounded";
+                btnDe.className = "bg-[#0066cc] text-white px-2 py-0.5 rounded";
                 btnRu.className = "text-slate-400 px-2 py-0.5";
                 document.getElementById('ai-banner-title').innerText = "AI Reparatur-Assistent";
                 document.getElementById('ai-banner-sub').innerText = "Fragen zu Fehlercodes & Bauteilen";
@@ -205,7 +197,6 @@
             appendUserMessage(text);
             input.value = '';
 
-            // Симуляция ответа Gemini AI Copilot
             setTimeout(() => {
                 let reply = "Анализирую ваш запрос...";
                 if(text.toLowerCase().includes("e-04") || text.toLowerCase().includes("danfoss")) {
@@ -228,7 +219,7 @@
 
         function handlePhotoUpload(input) {
             if(input.files && input.files[0]) {
-                appendUserMessage("📷 [Загружено фото шильдика/ошибки: " + input.files[0].name + "]");
+                appendUserMessage("📷 [Загружено фото шильдика: " + input.files[0].name + "]");
                 setTimeout(() => {
                     const reply = currentLang === 'ru'
                         ? "🔍 **OCR Анализ шильдика:**\n- Модель: Danfoss Optyma Plus\n- Хладагент: R134a / R404A\n- Серийный №: 114X4201\n\n*Узел внесен в электронный протокол.*"
@@ -242,7 +233,7 @@
             const box = document.getElementById('chat-box');
             box.innerHTML += `
                 <div class="flex items-start justify-end space-x-2">
-                    <div class="bg-leh-blue text-white p-3 rounded-2xl rounded-tr-none max-w-[80%] shadow-sm">
+                    <div class="bg-[#0066cc] text-white p-3 rounded-2xl rounded-tr-none max-w-[80%] shadow-sm">
                         ${msg}
                     </div>
                 </div>
@@ -254,7 +245,7 @@
             const box = document.getElementById('chat-box');
             box.innerHTML += `
                 <div class="flex items-start space-x-2">
-                    <div class="w-7 h-7 rounded-full bg-leh-navy text-white flex items-center justify-center text-xs">🤖</div>
+                    <div class="w-7 h-7 rounded-full bg-[#0c2340] text-white flex items-center justify-center text-xs">🤖</div>
                     <div class="bg-white p-3 rounded-2xl rounded-tl-none border border-slate-200 max-w-[80%] text-slate-800 shadow-sm space-y-1">
                         ${msg.replace(/\n/g, '<br>')}
                     </div>
