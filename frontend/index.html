@@ -8,50 +8,50 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .tab-btn.active {
-            background-color: #f59e0b;
-            color: #020617;
+            background-color: #ec4899;
+            color: #ffffff;
             font-weight: bold;
         }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased">
+<body class="bg-zinc-950 text-zinc-100 min-h-screen font-sans antialiased">
 
     <!-- Header Navigation -->
-    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 shadow-2xl">
+    <header class="bg-zinc-900 border-b border-zinc-800 sticky top-0 z-50 shadow-2xl">
         <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="flex items-center space-x-4">
-                <div class="bg-gradient-to-br from-amber-500 to-amber-700 text-slate-950 w-11 h-11 rounded-xl font-black text-xl flex items-center justify-center shadow-lg shadow-amber-500/20">
+                <div class="bg-gradient-to-br from-pink-500 to-rose-600 text-white w-11 h-11 rounded-xl font-black text-xl flex items-center justify-center shadow-lg shadow-pink-500/25">
                     LEH
                 </div>
                 <div>
                     <div class="flex items-center space-x-2">
                         <h1 class="text-xl font-bold tracking-tight text-white">LEH SOLUTIONS</h1>
-                        <span class="text-[10px] uppercase tracking-widest px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 font-semibold border border-amber-500/20">Dispo & Multi-Lang System</span>
+                        <span class="text-[10px] uppercase tracking-widest px-2 py-0.5 rounded bg-pink-500/10 text-pink-400 font-semibold border border-pink-500/20">Dispo & Multi-Lang System</span>
                     </div>
-                    <p class="text-xs text-slate-400">Handwerker-Steuerung & KI-Routenplanung</p>
+                    <p class="text-xs text-zinc-400">Handwerker-Steuerung & KI-Routenplanung</p>
                 </div>
             </div>
 
             <!-- View Switcher Tabs -->
-            <div class="flex items-center space-x-2 bg-slate-950 p-1.5 rounded-xl border border-slate-800">
+            <div class="flex items-center space-x-2 bg-zinc-950 p-1.5 rounded-xl border border-zinc-800">
                 <button onclick="requestTabSwitch('boss')" id="tab-boss" class="tab-btn active px-4 py-2 rounded-lg text-xs transition flex items-center space-x-2">
-                    <i class="fa-solid fa-lock text-amber-400 mr-1" id="boss-lock-icon"></i>
+                    <i class="fa-solid fa-lock text-pink-300 mr-1" id="boss-lock-icon"></i>
                     <i class="fa-solid fa-user-tie"></i>
                     <span>Disponenten-Panel (Chef)</span>
                 </button>
-                <button onclick="requestTabSwitch('worker')" id="tab-worker" class="tab-btn bg-slate-900 text-slate-300 hover:text-white px-4 py-2 rounded-lg text-xs transition flex items-center space-x-2">
-                    <i class="fa-solid fa-lock text-amber-400 mr-1" id="worker-lock-icon"></i>
+                <button onclick="requestTabSwitch('worker')" id="tab-worker" class="tab-btn bg-zinc-900 text-zinc-300 hover:text-white px-4 py-2 rounded-lg text-xs transition flex items-center space-x-2">
+                    <i class="fa-solid fa-lock text-pink-400 mr-1" id="worker-lock-icon"></i>
                     <i class="fa-solid fa-hard-hat"></i>
                     <span>Handwerker-Portal (Рабочий)</span>
                 </button>
             </div>
 
             <div class="flex items-center space-x-3">
-                <button onclick="logoutCurrentSession()" id="btn-logout" class="hidden bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1">
+                <button onclick="logoutCurrentSession()" id="btn-logout" class="hidden bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1">
                     <i class="fa-solid fa-right-from-bracket"></i>
                     <span id="logout-text">Abmelden</span>
                 </button>
-                <button onclick="seedData()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shadow-md shadow-amber-500/10">
+                <button onclick="seedData()" class="bg-pink-600 hover:bg-pink-500 text-white px-3 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shadow-md shadow-pink-600/20">
                     <i class="fa-solid fa-wand-magic-sparkles"></i>
                     <span>Testdaten laden</span>
                 </button>
@@ -60,31 +60,31 @@
     </header>
 
     <!-- Modal 1: Chef Auth -->
-    <div id="chef-auth-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center hidden">
-        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-sm w-full mx-4 shadow-2xl relative">
+    <div id="chef-auth-modal" class="fixed inset-0 bg-zinc-950/80 backdrop-blur-md z-50 flex items-center justify-center hidden">
+        <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl max-w-sm w-full mx-4 shadow-2xl relative">
             <div class="text-center mb-5">
-                <div class="w-12 h-12 bg-amber-500/10 border border-amber-500/30 text-amber-400 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl">
+                <div class="w-12 h-12 bg-pink-500/10 border border-pink-500/30 text-pink-400 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl">
                     <i class="fa-solid fa-user-shield"></i>
                 </div>
                 <h3 class="text-base font-bold text-white">Disponenten-Login (Chef)</h3>
-                <p class="text-xs text-slate-400 mt-1">Geben Sie den PIN-Code ein (Standard: <b class="text-amber-400">1234</b>)</p>
+                <p class="text-xs text-zinc-400 mt-1">Geben Sie den PIN-Code ein (Standard: <b class="text-pink-400">1234</b>)</p>
             </div>
 
             <form onsubmit="handleChefAuthSubmit(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-medium text-slate-400 mb-1.5">PIN / Passwort:</label>
-                    <input type="password" id="chef-pin-input" placeholder="1234" autofocus class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-center text-lg font-mono text-amber-400 focus:outline-none focus:border-amber-500 tracking-widest">
+                    <label class="block text-xs font-medium text-zinc-400 mb-1.5">PIN / Passwort:</label>
+                    <input type="password" id="chef-pin-input" placeholder="1234" autofocus class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-center text-lg font-mono text-pink-400 focus:outline-none focus:border-pink-500 tracking-widest">
                 </div>
 
-                <div id="chef-auth-error" class="text-xs text-red-400 text-center font-medium hidden">
+                <div id="chef-auth-error" class="text-xs text-rose-400 text-center font-medium hidden">
                     ❌ Falscher PIN-Code! (Versuchen Sie: 1234)
                 </div>
 
                 <div class="flex space-x-2 pt-2">
-                    <button type="button" onclick="closeModals()" class="w-1/2 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-xs font-bold transition">
+                    <button type="button" onclick="closeModals()" class="w-1/2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 py-2.5 rounded-xl text-xs font-bold transition">
                         Abbrechen
                     </button>
-                    <button type="submit" class="w-1/2 bg-amber-500 hover:bg-amber-400 text-slate-950 py-2.5 rounded-xl text-xs font-bold transition shadow-lg shadow-amber-500/20">
+                    <button type="submit" class="w-1/2 bg-pink-600 hover:bg-pink-500 text-white py-2.5 rounded-xl text-xs font-bold transition shadow-lg shadow-pink-600/25">
                         Anmelden
                     </button>
                 </div>
@@ -93,36 +93,36 @@
     </div>
 
     <!-- Modal 2: Worker Login -->
-    <div id="worker-auth-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center hidden">
-        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-sm w-full mx-4 shadow-2xl relative">
+    <div id="worker-auth-modal" class="fixed inset-0 bg-zinc-950/80 backdrop-blur-md z-50 flex items-center justify-center hidden">
+        <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl max-w-sm w-full mx-4 shadow-2xl relative">
             <div class="text-center mb-5">
-                <div class="w-12 h-12 bg-blue-500/10 border border-blue-500/30 text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl">
+                <div class="w-12 h-12 bg-pink-500/10 border border-pink-500/30 text-pink-400 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl">
                     <i class="fa-solid fa-hard-hat"></i>
                 </div>
                 <h3 class="text-base font-bold text-white">Handwerker-Anmeldung</h3>
-                <p class="text-xs text-slate-400 mt-1">Вход для мастера (Тест: <b class="text-blue-400">hans</b> / пароль: <b class="text-blue-400">1234</b>)</p>
+                <p class="text-xs text-zinc-400 mt-1">Вход для мастера (Тест: <b class="text-pink-400">hans</b> / пароль: <b class="text-pink-400">1234</b>)</p>
             </div>
 
             <form onsubmit="handleWorkerAuthSubmit(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-medium text-slate-400 mb-1.5">Benutzername / Логин:</label>
-                    <input type="text" id="worker-username-input" placeholder="hans" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
+                    <label class="block text-xs font-medium text-zinc-400 mb-1.5">Benutzername / Логин:</label>
+                    <input type="text" id="worker-username-input" placeholder="hans" required class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-pink-500">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-medium text-slate-400 mb-1.5">Passwort / Пароль:</label>
-                    <input type="password" id="worker-password-input" placeholder="••••" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
+                    <label class="block text-xs font-medium text-zinc-400 mb-1.5">Passwort / Пароль:</label>
+                    <input type="password" id="worker-password-input" placeholder="••••" required class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-pink-500">
                 </div>
 
-                <div id="worker-auth-error" class="text-xs text-red-400 text-center font-medium hidden">
+                <div id="worker-auth-error" class="text-xs text-rose-400 text-center font-medium hidden">
                     ❌ Неверный логин или пароль!
                 </div>
 
                 <div class="flex space-x-2 pt-2">
-                    <button type="button" onclick="closeModals()" class="w-1/2 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-xs font-bold transition">
+                    <button type="button" onclick="closeModals()" class="w-1/2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 py-2.5 rounded-xl text-xs font-bold transition">
                         Abbrechen
                     </button>
-                    <button type="submit" class="w-1/2 bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl text-xs font-bold transition shadow-lg shadow-blue-600/20">
+                    <button type="submit" class="w-1/2 bg-pink-600 hover:bg-pink-500 text-white py-2.5 rounded-xl text-xs font-bold transition shadow-lg shadow-pink-600/25">
                         Einloggen
                     </button>
                 </div>
@@ -131,14 +131,14 @@
     </div>
 
     <!-- Modal 3: Worker Dynamic Hotel Picker -->
-    <div id="hotel-picker-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center hidden">
-        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-md w-full mx-4 shadow-2xl relative">
+    <div id="hotel-picker-modal" class="fixed inset-0 bg-zinc-950/80 backdrop-blur-md z-50 flex items-center justify-center hidden">
+        <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl max-w-md w-full mx-4 shadow-2xl relative">
             <div class="text-center mb-5">
-                <div class="w-12 h-12 bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl">
+                <div class="w-12 h-12 bg-pink-500/10 border border-pink-500/30 text-pink-400 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl">
                     <i class="fa-solid fa-hotel"></i>
                 </div>
                 <h3 class="text-base font-bold text-white">🏨 Выбор отеля для проживания</h3>
-                <p class="text-xs text-slate-400 mt-1" id="modal-city-subtitle">Подборка ближайших отелей к объекту</p>
+                <p class="text-xs text-zinc-400 mt-1" id="modal-city-subtitle">Подборка ближайших отелей к объекту</p>
             </div>
 
             <!-- Dynamic Hotels Container -->
@@ -146,7 +146,7 @@
                 <!-- Will be populated dynamically by JS according to order city -->
             </div>
 
-            <button type="button" onclick="closeModals()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 rounded-xl text-xs font-bold transition">
+            <button type="button" onclick="closeModals()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 py-2 rounded-xl text-xs font-bold transition">
                 Закрыть
             </button>
         </div>
@@ -158,46 +158,46 @@
         <!-- VIEW 1: CHEF PANEL -->
         <div id="view-boss" class="space-y-8">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
-                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800">
-                    <p class="text-xs text-slate-400 font-semibold uppercase">Gesamtaufträge</p>
-                    <p id="total-orders" class="text-3xl font-black text-amber-400 mt-2">0</p>
+                <div class="bg-zinc-900 p-5 rounded-2xl border border-zinc-800 shadow-sm">
+                    <p class="text-xs text-zinc-400 font-semibold uppercase">Gesamtaufträge</p>
+                    <p id="total-orders" class="text-3xl font-black text-pink-400 mt-2">0</p>
                 </div>
-                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800">
-                    <p class="text-xs text-slate-400 font-semibold uppercase">Registrierte Handwerker</p>
+                <div class="bg-zinc-900 p-5 rounded-2xl border border-zinc-800 shadow-sm">
+                    <p class="text-xs text-zinc-400 font-semibold uppercase">Registrierte Handwerker</p>
                     <p id="total-masters" class="text-3xl font-black text-emerald-400 mt-2">0</p>
                 </div>
-                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800">
-                    <p class="text-xs text-slate-400 font-semibold uppercase">WhatsApp Versendet</p>
+                <div class="bg-zinc-900 p-5 rounded-2xl border border-zinc-800 shadow-sm">
+                    <p class="text-xs text-zinc-400 font-semibold uppercase">WhatsApp Versendet</p>
                     <p id="whatsapp-count" class="text-3xl font-black text-emerald-400 mt-2">0</p>
                 </div>
-                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800">
-                    <p class="text-xs text-slate-400 font-semibold uppercase">Hotelbuchungen</p>
-                    <p id="hotel-bookings" class="text-3xl font-black text-indigo-400 mt-2">0</p>
+                <div class="bg-zinc-900 p-5 rounded-2xl border border-zinc-800 shadow-sm">
+                    <p class="text-xs text-zinc-400 font-semibold uppercase">Hotelbuchungen</p>
+                    <p id="hotel-bookings" class="text-3xl font-black text-pink-400 mt-2">0</p>
                 </div>
             </div>
 
             <!-- REGISTRATION & MANAGEMENT MODULE -->
-            <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-2xl">
+            <div class="bg-zinc-900 rounded-2xl border border-zinc-800 p-6 shadow-2xl">
                 <h2 class="text-base font-bold text-white mb-4 flex items-center">
-                    <i class="fa-solid fa-users-gear text-amber-500 mr-2.5"></i> 👷 Управление персоналом (Handwerker-Verwaltung)
+                    <i class="fa-solid fa-users-gear text-pink-500 mr-2.5"></i> 👷 Управление персоналом (Handwerker-Verwaltung)
                 </h2>
 
-                <form onsubmit="registerNewWorker(event)" class="grid grid-cols-1 md:grid-cols-5 gap-4 bg-slate-950 p-4 rounded-xl border border-slate-800 mb-6">
+                <form onsubmit="registerNewWorker(event)" class="grid grid-cols-1 md:grid-cols-5 gap-4 bg-zinc-950 p-4 rounded-xl border border-zinc-800 mb-6">
                     <div>
-                        <label class="block text-[11px] text-slate-400 mb-1">Name (Имя/Фамилия):</label>
-                        <input type="text" id="reg-name" placeholder="z.B. Ivan Petrov" required class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:border-amber-500 focus:outline-none">
+                        <label class="block text-[11px] text-zinc-400 mb-1">Name (Имя/Фамилия):</label>
+                        <input type="text" id="reg-name" placeholder="z.B. Ivan Petrov" required class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-white focus:border-pink-500 focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-[11px] text-slate-400 mb-1">Benutzername (Логин):</label>
-                        <input type="text" id="reg-user" placeholder="ivan" required class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:border-amber-500 focus:outline-none">
+                        <label class="block text-[11px] text-zinc-400 mb-1">Benutzername (Логин):</label>
+                        <input type="text" id="reg-user" placeholder="ivan" required class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-white focus:border-pink-500 focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-[11px] text-slate-400 mb-1">Passwort (Пароль):</label>
-                        <input type="password" id="reg-pass" placeholder="1234" required class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:border-amber-500 focus:outline-none">
+                        <label class="block text-[11px] text-zinc-400 mb-1">Passwort (Пароль):</label>
+                        <input type="password" id="reg-pass" placeholder="1234" required class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-white focus:border-pink-500 focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-[11px] text-slate-400 mb-1">Standard-Sprache (Язык):</label>
-                        <select id="reg-lang" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:border-amber-500 focus:outline-none">
+                        <label class="block text-[11px] text-zinc-400 mb-1">Standard-Sprache (Язык):</label>
+                        <select id="reg-lang" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-white focus:border-pink-500 focus:outline-none">
                             <option value="de">🇩🇪 Deutsch</option>
                             <option value="ru">🇷🇺 Русский</option>
                             <option value="ua">🇺🇦 Українська</option>
@@ -212,22 +212,22 @@
                     </div>
                 </form>
 
-                <div class="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden">
-                    <div class="px-4 py-3 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
-                        <h3 class="text-xs font-bold text-slate-300">Зарегистрированные мастера в системе:</h3>
-                        <span class="text-[10px] text-slate-500">Удаление приводит к моментальной аннуляции доступа</span>
+                <div class="bg-zinc-950 rounded-xl border border-zinc-800 overflow-hidden">
+                    <div class="px-4 py-3 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50">
+                        <h3 class="text-xs font-bold text-zinc-300">Зарегистрированные мастера в системе:</h3>
+                        <span class="text-[10px] text-zinc-500">Удаление приводит к моментальной аннуляции доступа</span>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs">
                             <thead>
-                                <tr class="border-b border-slate-800 text-slate-400 text-[10px] uppercase">
+                                <tr class="border-b border-zinc-800 text-zinc-400 text-[10px] uppercase">
                                     <th class="p-3">Имя / Команда</th>
                                     <th class="p-3">Логин</th>
                                     <th class="p-3">Язык</th>
                                     <th class="p-3 text-right">Действие</th>
                                 </tr>
                             </thead>
-                            <tbody id="workers-manage-table" class="divide-y divide-slate-800 text-slate-300">
+                            <tbody id="workers-manage-table" class="divide-y divide-zinc-800 text-zinc-300">
                             </tbody>
                         </table>
                     </div>
@@ -235,70 +235,70 @@
             </div>
 
             <!-- WORKFLOW MODULE -->
-            <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-2xl">
+            <div class="bg-zinc-900 rounded-2xl border border-zinc-800 p-6 shadow-2xl">
                 <h2 class="text-lg font-bold text-white mb-6 flex items-center">
-                    <i class="fa-solid fa-sliders text-amber-500 mr-2.5"></i> KI-Routensteuerung & Disponenten-Freigabe
+                    <i class="fa-solid fa-sliders text-pink-500 mr-2.5"></i> KI-Routensteuerung & Disponenten-Freigabe
                 </h2>
 
-                <div class="bg-slate-950 p-6 rounded-xl border border-slate-800 mb-6">
+                <div class="bg-zinc-950 p-6 rounded-xl border border-zinc-800 mb-6">
                     <div class="flex items-center space-x-2 mb-4">
-                        <span class="w-6 h-6 rounded-full bg-amber-500 text-slate-950 text-xs font-bold flex items-center justify-center">1</span>
-                        <h3 class="font-bold text-amber-400 text-sm">Erstauftrag, Suchradius (KM) & Handwerker festlegen</h3>
+                        <span class="w-6 h-6 rounded-full bg-pink-500 text-white text-xs font-bold flex items-center justify-center">1</span>
+                        <h3 class="font-bold text-pink-400 text-sm">Erstauftrag, Suchradius (KM) & Handwerker festlegen</h3>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                         <div>
-                            <label class="block text-xs text-slate-400 mb-1.5 font-medium">Erstauftrag (Startpunkt) auswählen:</label>
-                            <select id="start-order-select" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-500">
+                            <label class="block text-xs text-zinc-400 mb-1.5 font-medium">Erstauftrag (Startpunkt) auswählen:</label>
+                            <select id="start-order-select" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-2 text-xs text-zinc-200 focus:outline-none focus:border-pink-500">
                                 <option value="">Lade Aufträge...</option>
                             </select>
                         </div>
 
                         <div>
-                            <label class="block text-xs text-slate-400 mb-1.5 font-medium">Suchradius für Folgeaufträge (KM):</label>
+                            <label class="block text-xs text-zinc-400 mb-1.5 font-medium">Suchradius für Folgeaufträge (KM):</label>
                             <div class="flex items-center space-x-3">
-                                <input type="range" id="km-range" min="10" max="200" value="50" oninput="document.getElementById('km-val').innerText = this.value" class="w-full accent-amber-500">
-                                <span class="text-xs font-bold text-amber-400 w-12"><span id="km-val">50</span> km</span>
+                                <input type="range" id="km-range" min="10" max="200" value="50" oninput="document.getElementById('km-val').innerText = this.value" class="w-full accent-pink-500">
+                                <span class="text-xs font-bold text-pink-400 w-12"><span id="km-val">50</span> km</span>
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-xs text-slate-400 mb-1.5 font-medium">Handwerker / Team zuweisen:</label>
-                            <select id="master-select" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-500">
+                            <label class="block text-xs text-zinc-400 mb-1.5 font-medium">Handwerker / Team zuweisen:</label>
+                            <select id="master-select" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-2 text-xs text-zinc-200 focus:outline-none focus:border-pink-500">
                                 <option value="">Lade Handwerker...</option>
                             </select>
                         </div>
                     </div>
 
-                    <button onclick="runAiClustering()" class="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold px-6 py-2.5 rounded-xl text-xs transition shadow-lg shadow-amber-500/10 flex items-center space-x-2">
+                    <button onclick="runAiClustering()" class="bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-400 hover:to-rose-500 text-white font-bold px-6 py-2.5 rounded-xl text-xs transition shadow-lg shadow-pink-500/20 flex items-center space-x-2">
                         <i class="fa-solid fa-microchip"></i>
                         <span>KI-Routenberechnung starten</span>
                     </button>
                 </div>
 
-                <div id="approval-panel" class="bg-slate-950 p-6 rounded-xl border border-amber-500/40 mb-6 hidden">
+                <div id="approval-panel" class="bg-zinc-950 p-6 rounded-xl border border-pink-500/40 mb-6 hidden">
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center space-x-2">
-                            <span class="w-6 h-6 rounded-full bg-amber-500 text-slate-950 text-xs font-bold flex items-center justify-center">2</span>
+                            <span class="w-6 h-6 rounded-full bg-pink-500 text-white text-xs font-bold flex items-center justify-center">2</span>
                             <h3 class="font-bold text-white text-sm">Prüfung & Freigabe durch den Chef</h3>
                         </div>
-                        <span class="text-[10px] font-bold px-2.5 py-1 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30">Wartet auf Disponenten-Freigabe</span>
+                        <span class="text-[10px] font-bold px-2.5 py-1 rounded bg-pink-500/10 text-pink-400 border border-pink-500/30">Wartet auf Disponenten-Freigabe</span>
                     </div>
 
-                    <div id="cluster-results" class="text-xs text-slate-300 space-y-2 mb-6 bg-slate-900 p-4 rounded-lg border border-slate-800"></div>
+                    <div id="cluster-results" class="text-xs text-zinc-300 space-y-2 mb-6 bg-zinc-900 p-4 rounded-lg border border-zinc-800"></div>
 
                     <div class="flex items-center space-x-3">
                         <button onclick="approveRoute()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-2.5 rounded-xl text-xs transition shadow-lg shadow-emerald-600/20 flex items-center space-x-2">
                             <i class="fa-solid fa-check"></i>
                             <span>Route freigeben & Benachrichtigungen senden</span>
                         </button>
-                        <button onclick="rejectRoute()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2.5 rounded-xl text-xs font-medium transition">
+                        <button onclick="rejectRoute()" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-4 py-2.5 rounded-xl text-xs font-medium transition">
                             Route ablehnen
                         </button>
                     </div>
                 </div>
 
-                <div id="timeline-panel" class="bg-slate-950 p-6 rounded-xl border border-emerald-500/40 hidden">
+                <div id="timeline-panel" class="bg-zinc-950 p-6 rounded-xl border border-emerald-500/40 hidden">
                     <div class="flex items-center space-x-2 mb-4">
                         <span class="w-6 h-6 rounded-full bg-emerald-500 text-white text-xs font-bold flex items-center justify-center">3</span>
                         <h3 class="font-bold text-emerald-400 text-sm">System-Status & Ausführung</h3>
@@ -307,12 +307,12 @@
                 </div>
             </div>
 
-            <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6">
+            <div class="bg-zinc-900 rounded-2xl border border-zinc-800 p-6">
                 <h3 class="font-bold text-white text-sm mb-4">Aktuelle Aufträge im System</h3>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs">
                         <thead>
-                            <tr class="border-b border-slate-800 text-slate-400 uppercase text-[10px]">
+                            <tr class="border-b border-zinc-800 text-zinc-400 uppercase text-[10px]">
                                 <th class="p-3">Auftrag-ID</th>
                                 <th class="p-3">Bezeichnung</th>
                                 <th class="p-3">Kunde</th>
@@ -320,8 +320,8 @@
                                 <th class="p-3">Status</th>
                             </tr>
                         </thead>
-                        <tbody id="orders-table-body" class="divide-y divide-slate-800 text-slate-300">
-                            <tr><td colspan="5" class="p-4 text-center text-slate-500">Lade Daten...</td></tr>
+                        <tbody id="orders-table-body" class="divide-y divide-zinc-800 text-zinc-300">
+                            <tr><td colspan="5" class="p-4 text-center text-zinc-500">Lade Daten...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -330,25 +330,25 @@
 
         <!-- VIEW 2: WORKER PORTAL -->
         <div id="view-worker" class="hidden space-y-6">
-            <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="bg-zinc-900 p-5 rounded-2xl border border-zinc-800 flex flex-col md:flex-row justify-between items-center gap-4">
                 <div>
                     <h2 class="text-base font-bold text-white" id="lang-title">👷 Portal für Handwerker</h2>
-                    <p class="text-xs text-slate-400" id="lang-subtitle">Wählen Sie Ihre Sprache / Оберіть мову / Выберите язык</p>
+                    <p class="text-xs text-zinc-400" id="lang-subtitle">Wählen Sie Ihre Sprache / Оберіть мову / Выберите язык</p>
                 </div>
 
                 <div class="flex flex-wrap gap-2">
-                    <button onclick="setLanguage('de')" id="btn-lang-de" class="px-3 py-1.5 rounded-lg text-xs font-bold border border-slate-700 bg-amber-500 text-slate-950">🇩🇪 DE</button>
-                    <button onclick="setLanguage('ru')" id="btn-lang-ru" class="px-3 py-1.5 rounded-lg text-xs font-bold border border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700">🇷🇺 RU</button>
-                    <button onclick="setLanguage('ua')" id="btn-lang-ua" class="px-3 py-1.5 rounded-lg text-xs font-bold border border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700">🇺🇦 UA</button>
-                    <button onclick="setLanguage('pl')" id="btn-lang-pl" class="px-3 py-1.5 rounded-lg text-xs font-bold border border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700">🇵🇱 PL</button>
-                    <button onclick="setLanguage('mo')" id="btn-lang-mo" class="px-3 py-1.5 rounded-lg text-xs font-bold border border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700">🇲🇩 MO/RO</button>
+                    <button onclick="setLanguage('de')" id="btn-lang-de" class="px-3 py-1.5 rounded-lg text-xs font-bold border border-zinc-700 bg-pink-600 text-white">🇩🇪 DE</button>
+                    <button onclick="setLanguage('ru')" id="btn-lang-ru" class="px-3 py-1.5 rounded-lg text-xs font-bold border border-zinc-700 bg-zinc-800 text-zinc-300 hover:bg-zinc-700">🇷🇺 RU</button>
+                    <button onclick="setLanguage('ua')" id="btn-lang-ua" class="px-3 py-1.5 rounded-lg text-xs font-bold border border-zinc-700 bg-zinc-800 text-zinc-300 hover:bg-zinc-700">🇺🇦 UA</button>
+                    <button onclick="setLanguage('pl')" id="btn-lang-pl" class="px-3 py-1.5 rounded-lg text-xs font-bold border border-zinc-700 bg-zinc-800 text-zinc-300 hover:bg-zinc-700">🇵🇱 PL</button>
+                    <button onclick="setLanguage('mo')" id="btn-lang-mo" class="px-3 py-1.5 rounded-lg text-xs font-bold border border-zinc-700 bg-zinc-800 text-zinc-300 hover:bg-zinc-700">🇲🇩 MO/RO</button>
                 </div>
             </div>
 
-            <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-2xl">
-                <div class="flex justify-between items-center pb-4 mb-6 border-b border-slate-800">
+            <div class="bg-zinc-900 rounded-2xl border border-zinc-800 p-6 shadow-2xl">
+                <div class="flex justify-between items-center pb-4 mb-6 border-b border-zinc-800">
                     <div>
-                        <span class="text-[10px] uppercase font-bold text-amber-400 tracking-wider" id="lbl-assigned-route">Zugewiesene Route</span>
+                        <span class="text-[10px] uppercase font-bold text-pink-400 tracking-wider" id="lbl-assigned-route">Zugewiesene Route</span>
                         <h3 class="text-lg font-bold text-white mt-1" id="lbl-worker-welcome">Hallo, Hans</h3>
                     </div>
                     <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-950 text-emerald-400 border border-emerald-800/50" id="lbl-route-status">
@@ -357,42 +357,42 @@
                 </div>
 
                 <div class="space-y-4" id="worker-orders-list">
-                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+                    <div class="bg-zinc-950 p-4 rounded-xl border border-zinc-800 space-y-3">
                         <div class="flex justify-between items-start">
                             <div>
-                                <span class="font-mono text-xs font-bold text-amber-400" id="lbl-order-id-1">Auftrag #101</span>
-                                <h4 class="font-bold text-slate-200 text-sm mt-0.5" id="lbl-order-title">Montage & Installation</h4>
-                                <p class="text-xs text-slate-400 mt-1">
-                                    <i class="fa-solid fa-location-dot text-amber-500 mr-1.5"></i>
+                                <span class="font-mono text-xs font-bold text-pink-400" id="lbl-order-id-1">Auftrag #101</span>
+                                <h4 class="font-bold text-zinc-200 text-sm mt-0.5" id="lbl-order-title">Montage & Installation</h4>
+                                <p class="text-xs text-zinc-400 mt-1">
+                                    <i class="fa-solid fa-location-dot text-pink-500 mr-1.5"></i>
                                     <span id="order-address-text">Alexanderplatz 1, Berlin</span>
                                 </p>
-                                <p class="text-xs text-slate-400 mt-0.5">
-                                    <i class="fa-regular fa-clock text-blue-400 mr-1.5"></i>
+                                <p class="text-xs text-zinc-400 mt-0.5">
+                                    <i class="fa-regular fa-clock text-rose-400 mr-1.5"></i>
                                     <span id="lbl-time-1">Ankunft: 09:00 AM</span>
                                 </p>
                             </div>
 
                             <!-- Dynamic Navigator Button -->
-                            <button onclick="startNavigation()" class="bg-blue-600 hover:bg-blue-500 text-white border border-blue-500/30 px-3.5 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition shadow-lg shadow-blue-600/20">
+                            <button onclick="startNavigation()" class="bg-rose-600 hover:bg-rose-500 text-white border border-rose-500/30 px-3.5 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition shadow-lg shadow-rose-600/20">
                                 <i class="fa-solid fa-location-arrow"></i>
                                 <span id="btn-nav">Navi starten</span>
                             </button>
                         </div>
 
                         <!-- Hotel Section (Interactive Choice) -->
-                        <div class="bg-indigo-950/40 border border-indigo-800/50 p-3.5 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs text-indigo-200">
+                        <div class="bg-pink-950/20 border border-pink-800/40 p-3.5 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs text-pink-200">
                             <div class="flex items-center space-x-2.5">
-                                <div class="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center">
+                                <div class="w-8 h-8 rounded-lg bg-pink-500/20 border border-pink-500/30 text-pink-400 flex items-center justify-center">
                                     <i class="fa-solid fa-hotel text-sm"></i>
                                 </div>
                                 <div>
-                                    <p class="text-[10px] uppercase font-bold text-indigo-400" id="lbl-hotel-title">Hotel & Unterbringung:</p>
+                                    <p class="text-[10px] uppercase font-bold text-pink-400" id="lbl-hotel-title">Hotel & Unterbringung:</p>
                                     <p class="font-semibold text-white mt-0.5" id="current-hotel-name">Загрузка отеля...</p>
                                 </div>
                             </div>
 
                             <div class="flex items-center space-x-2 w-full md:w-auto justify-end">
-                                <button onclick="openHotelModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition shadow-md flex items-center space-x-1">
+                                <button onclick="openHotelModal()" class="bg-pink-600 hover:bg-pink-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition shadow-md flex items-center space-x-1">
                                     <i class="fa-solid fa-bed"></i>
                                     <span>Выбрать / Сменить отель</span>
                                 </button>
@@ -400,12 +400,12 @@
                         </div>
 
                         <!-- Workflow Buttons -->
-                        <div class="pt-2 border-t border-slate-800/80 flex flex-wrap gap-2">
-                            <button onclick="updateStatus(this, 'drive')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700">
-                                <i class="fa-solid fa-truck-fast mr-1 text-amber-400"></i> <span class="btn-status-drive">Unterwegs</span>
+                        <div class="pt-2 border-t border-zinc-800/80 flex flex-wrap gap-2">
+                            <button onclick="updateStatus(this, 'drive')" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-3 py-1.5 rounded-lg text-xs font-medium border border-zinc-700">
+                                <i class="fa-solid fa-truck-fast mr-1 text-pink-400"></i> <span class="btn-status-drive">Unterwegs</span>
                             </button>
-                            <button onclick="updateStatus(this, 'arrive')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700">
-                                <i class="fa-solid fa-street-view mr-1 text-blue-400"></i> <span class="btn-status-arrive">Angekommen</span>
+                            <button onclick="updateStatus(this, 'arrive')" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-3 py-1.5 rounded-lg text-xs font-medium border border-zinc-700">
+                                <i class="fa-solid fa-street-view mr-1 text-rose-400"></i> <span class="btn-status-arrive">Angekommen</span>
                             </button>
                             <button onclick="updateStatus(this, 'done')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-md shadow-emerald-600/20">
                                 <i class="fa-solid fa-circle-check mr-1"></i> <span class="btn-status-done">Erledigt</span>
@@ -535,12 +535,12 @@
             const hotels = getHotelsForCity(city);
 
             list.innerHTML = hotels.map(h => `
-                <div onclick="selectHotel('${h.fullName}', '${h.price}')" class="p-3 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl cursor-pointer transition flex items-center justify-between">
+                <div onclick="selectHotel('${h.fullName}', '${h.price}')" class="p-3 bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 rounded-xl cursor-pointer transition flex items-center justify-between">
                     <div>
                         <h4 class="text-xs font-bold text-white">${h.name}</h4>
-                        <p class="text-[11px] text-slate-400">${h.desc}</p>
+                        <p class="text-[11px] text-zinc-400">${h.desc}</p>
                     </div>
-                    <span class="text-xs font-bold text-emerald-400">${h.price}</span>
+                    <span class="text-xs font-bold text-pink-400">${h.price}</span>
                 </div>
             `).join('');
 
@@ -647,8 +647,8 @@
             activeWorker = null;
             saveState();
 
-            document.getElementById('boss-lock-icon').className = "fa-solid fa-lock text-amber-400 mr-1";
-            document.getElementById('worker-lock-icon').className = "fa-solid fa-lock text-amber-400 mr-1";
+            document.getElementById('boss-lock-icon').className = "fa-solid fa-lock text-pink-400 mr-1";
+            document.getElementById('worker-lock-icon').className = "fa-solid fa-lock text-pink-400 mr-1";
             document.getElementById('btn-logout').classList.add('hidden');
             switchTab('boss');
             alert('🔒 Erfolgreich abgemeldet!');
@@ -705,21 +705,21 @@
             manageTable.innerHTML = '';
 
             if (mastersDb.length === 0) {
-                manageTable.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500">Нет зарегистрированных рабочих</td></tr>`;
+                manageTable.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-zinc-500">Нет зарегистрированных рабочих</td></tr>`;
                 return;
             }
 
             mastersDb.forEach(m => {
                 manageTable.innerHTML += `
-                    <tr class="hover:bg-slate-900/80 transition">
+                    <tr class="hover:bg-zinc-900/80 transition">
                         <td class="p-3 font-semibold text-white flex items-center space-x-2">
-                            <i class="fa-solid fa-user text-amber-500/70 text-xs"></i>
+                            <i class="fa-solid fa-user text-pink-500/70 text-xs"></i>
                             <span>${m.name}</span>
                         </td>
-                        <td class="p-3 font-mono text-amber-400 font-bold text-xs">${m.user}</td>
-                        <td class="p-3 text-slate-300 text-xs">${langFlags[m.lang] || m.lang}</td>
+                        <td class="p-3 font-mono text-pink-400 font-bold text-xs">${m.user}</td>
+                        <td class="p-3 text-zinc-300 text-xs">${langFlags[m.lang] || m.lang}</td>
                         <td class="p-3 text-right">
-                            <button onclick="deleteWorker('${m.user}')" title="Удалить рабочего" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center space-x-1 ml-auto">
+                            <button onclick="deleteWorker('${m.user}')" title="Удалить рабочего" class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center space-x-1 ml-auto">
                                 <i class="fa-solid fa-trash-can"></i>
                                 <span>Löschen</span>
                             </button>
@@ -733,15 +733,15 @@
             if (tab === 'boss') {
                 document.getElementById('view-boss').classList.remove('hidden');
                 document.getElementById('view-worker').classList.add('hidden');
-                document.getElementById('tab-boss').classList.add('active', 'bg-amber-500', 'text-slate-950');
-                document.getElementById('tab-worker').classList.remove('active', 'bg-amber-500', 'text-slate-950');
-                document.getElementById('tab-worker').classList.add('bg-slate-900', 'text-slate-300');
+                document.getElementById('tab-boss').classList.add('active', 'bg-pink-500', 'text-white');
+                document.getElementById('tab-worker').classList.remove('active', 'bg-pink-500', 'text-white');
+                document.getElementById('tab-worker').classList.add('bg-zinc-900', 'text-zinc-300');
             } else {
                 document.getElementById('view-boss').classList.add('hidden');
                 document.getElementById('view-worker').classList.remove('hidden');
-                document.getElementById('tab-worker').classList.add('active', 'bg-amber-500', 'text-slate-950');
-                document.getElementById('tab-boss').classList.remove('active', 'bg-amber-500', 'text-slate-950');
-                document.getElementById('tab-boss').classList.add('bg-slate-900', 'text-slate-300');
+                document.getElementById('tab-worker').classList.add('active', 'bg-pink-500', 'text-white');
+                document.getElementById('tab-boss').classList.remove('active', 'bg-pink-500', 'text-white');
+                document.getElementById('tab-boss').classList.add('bg-zinc-900', 'text-zinc-300');
             }
         }
 
@@ -752,9 +752,9 @@
             ['de', 'ru', 'ua', 'pl', 'mo'].forEach(l => {
                 const btn = document.getElementById(`btn-lang-${l}`);
                 if (l === lang) {
-                    btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold border border-amber-500 bg-amber-500 text-slate-950 shadow-md";
+                    btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold border border-pink-500 bg-pink-600 text-white shadow-md";
                 } else {
-                    btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold border border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700";
+                    btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold border border-zinc-700 bg-zinc-800 text-zinc-300 hover:bg-zinc-700";
                 }
             });
 
@@ -818,11 +818,11 @@
                         select.innerHTML += `<option value="${id}">#${id} — ${title} (${city})</option>`;
                         tbody.innerHTML += `
                             <tr>
-                                <td class="p-3 font-mono text-amber-400 font-bold">#${id}</td>
+                                <td class="p-3 font-mono text-pink-400 font-bold">#${id}</td>
                                 <td class="p-3 font-semibold text-white">${title}</td>
                                 <td class="p-3">${o.client_name || 'Kunde'}</td>
-                                <td class="p-3 text-slate-400">${city}</td>
-                                <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] bg-amber-500/10 text-amber-400 font-bold border border-amber-500/20">${o.status || 'NEU'}</span></td>
+                                <td class="p-3 text-zinc-400">${city}</td>
+                                <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] bg-pink-500/10 text-pink-400 font-bold border border-pink-500/20">${o.status || 'NEU'}</span></td>
                             </tr>
                         `;
                     });
@@ -839,7 +839,7 @@
                     updateWorkerCardUI();
                 } else {
                     select.innerHTML = '<option value="">Keine Aufträge vorhanden</option>';
-                    tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-500">Bitte "Testdaten laden" klicken</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-zinc-500">Bitte "Testdaten laden" klicken</td></tr>';
                 }
             } catch (e) {}
         }
@@ -873,15 +873,15 @@
 
             const resultsDiv = document.getElementById('cluster-results');
             resultsDiv.innerHTML = `
-                <p class="font-bold text-white text-sm mb-2"><i class="fa-solid fa-route text-amber-400 mr-2"></i>Berechnete KI-Route im Radius von ${km} KM:</p>
+                <p class="font-bold text-white text-sm mb-2"><i class="fa-solid fa-route text-pink-400 mr-2"></i>Berechnete KI-Route im Radius von ${km} KM:</p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-                    <div class="bg-slate-950 p-3 rounded border border-slate-800">
-                        <span class="text-slate-400">Erstauftrag:</span> <strong class="text-amber-400">#${startOrderId} (${activeClusterData.city})</strong><br>
-                        <span class="text-slate-400">Zugewiesener Handwerker:</span> <strong class="text-white">${master}</strong>
+                    <div class="bg-zinc-950 p-3 rounded border border-zinc-800">
+                        <span class="text-zinc-400">Erstauftrag:</span> <strong class="text-pink-400">#${startOrderId} (${activeClusterData.city})</strong><br>
+                        <span class="text-zinc-400">Zugewiesener Handwerker:</span> <strong class="text-white">${master}</strong>
                     </div>
-                    <div class="bg-slate-950 p-3 rounded border border-slate-800">
-                        <span class="text-slate-400">Gesamtstrecke:</span> <strong class="text-emerald-400">${activeClusterData.totalDistance} km</strong><br>
-                        <span class="text-slate-400">Hotel-Empfehlung:</span> <strong class="${activeClusterData.needsHotel ? 'text-indigo-400 font-bold' : 'text-slate-400'}">${activeClusterData.needsHotel ? `🏨 Hotel in ${activeClusterData.city}` : 'Nicht erforderlich'}</strong>
+                    <div class="bg-zinc-950 p-3 rounded border border-zinc-800">
+                        <span class="text-zinc-400">Gesamtstrecke:</span> <strong class="text-emerald-400">${activeClusterData.totalDistance} km</strong><br>
+                        <span class="text-zinc-400">Hotel-Empfehlung:</span> <strong class="${activeClusterData.needsHotel ? 'text-pink-400 font-bold' : 'text-zinc-400'}">${activeClusterData.needsHotel ? `🏨 Hotel in ${activeClusterData.city}` : 'Nicht erforderlich'}</strong>
                     </div>
                 </div>
             `;
@@ -917,16 +917,16 @@
                     <i class="fa-solid fa-circle-check"></i>
                     <span><b>Route vom Disponenten freigegeben</b> für ${activeClusterData.master}</span>
                 </div>
-                <div class="flex items-center space-x-3 text-purple-300">
+                <div class="flex items-center space-x-3 text-pink-300">
                     <i class="fa-brands fa-whatsapp"></i>
                     <span><b>WhatsApp an Chef:</b> "Bestätigung: Route #${activeClusterData.startOrder} (${activeClusterData.city}) wurde gestartet."</span>
                 </div>
-                <div class="flex items-center space-x-3 text-blue-300">
+                <div class="flex items-center space-x-3 text-pink-300">
                     <i class="fa-brands fa-whatsapp"></i>
                     <span><b>WhatsApp an Handwerker (${activeClusterData.master}):</b> "Neue Route erhalten. Gesamtlänge: ${activeClusterData.totalDistance} km."</span>
                 </div>
                 ${activeClusterData.needsHotel ? `
-                <div class="flex items-center space-x-3 text-indigo-300">
+                <div class="flex items-center space-x-3 text-rose-300">
                     <i class="fa-solid fa-hotel"></i>
                     <span><b>LEH Logistics API:</b> Hotel reserviert "Mercure Hotel ${activeClusterData.city}" (€85/Nacht).</span>
                 </div>
