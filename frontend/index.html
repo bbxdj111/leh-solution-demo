@@ -130,7 +130,7 @@
         </div>
     </div>
 
-    <!-- Modal 3: Worker Hotel Picker -->
+    <!-- Modal 3: Worker Dynamic Hotel Picker -->
     <div id="hotel-picker-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center hidden">
         <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-md w-full mx-4 shadow-2xl relative">
             <div class="text-center mb-5">
@@ -138,34 +138,12 @@
                     <i class="fa-solid fa-hotel"></i>
                 </div>
                 <h3 class="text-base font-bold text-white">🏨 Выбор отеля для проживания</h3>
-                <p class="text-xs text-slate-400 mt-1">Выберите предпочтительный отель рядом с объектом</p>
+                <p class="text-xs text-slate-400 mt-1" id="modal-city-subtitle">Подборка ближайших отелей к объекту</p>
             </div>
 
+            <!-- Dynamic Hotels Container -->
             <div class="space-y-3 mb-6" id="hotel-options-list">
-                <!-- Hotel Options -->
-                <div onclick="selectHotel('Mercure Hotel Leipzig (EZ inkl. Frühstück)', '85€ / ночь')" class="p-3 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl cursor-pointer transition flex items-center justify-between">
-                    <div>
-                        <h4 class="text-xs font-bold text-white">Mercure Hotel Leipzig ⭐⭐⭐⭐</h4>
-                        <p class="text-[11px] text-slate-400">2.4 км от объекта • Одноместный номер + Завтрак</p>
-                    </div>
-                    <span class="text-xs font-bold text-emerald-400">85€ / ночь</span>
-                </div>
-
-                <div onclick="selectHotel('B&B Hotel Leipzig City (EZ)', '65€ / ночь')" class="p-3 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl cursor-pointer transition flex items-center justify-between">
-                    <div>
-                        <h4 class="text-xs font-bold text-white">B&B Hotel Leipzig City ⭐⭐⭐</h4>
-                        <p class="text-[11px] text-slate-400">1.1 км от объекта • Стандартный номер</p>
-                    </div>
-                    <span class="text-xs font-bold text-emerald-400">65€ / ночь</span>
-                </div>
-
-                <div onclick="selectHotel('Ibis Budget Leipzig Hauptbahnhof', '55€ / ночь')" class="p-3 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl cursor-pointer transition flex items-center justify-between">
-                    <div>
-                        <h4 class="text-xs font-bold text-white">Ibis Budget Leipzig ⭐⭐</h4>
-                        <p class="text-[11px] text-slate-400">3.5 км от объекта • Бюджетный номер</p>
-                    </div>
-                    <span class="text-xs font-bold text-emerald-400">55€ / ночь</span>
-                </div>
+                <!-- Will be populated dynamically by JS according to order city -->
             </div>
 
             <button type="button" onclick="closeModals()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 rounded-xl text-xs font-bold transition">
@@ -383,7 +361,7 @@
                         <div class="flex justify-between items-start">
                             <div>
                                 <span class="font-mono text-xs font-bold text-amber-400" id="lbl-order-id-1">Auftrag #101</span>
-                                <h4 class="font-bold text-slate-200 text-sm mt-0.5">Montage & Installation</h4>
+                                <h4 class="font-bold text-slate-200 text-sm mt-0.5" id="lbl-order-title">Montage & Installation</h4>
                                 <p class="text-xs text-slate-400 mt-1">
                                     <i class="fa-solid fa-location-dot text-amber-500 mr-1.5"></i>
                                     <span id="order-address-text">Alexanderplatz 1, Berlin</span>
@@ -409,7 +387,7 @@
                                 </div>
                                 <div>
                                     <p class="text-[10px] uppercase font-bold text-indigo-400" id="lbl-hotel-title">Hotel & Unterbringung:</p>
-                                    <p class="font-semibold text-white mt-0.5" id="current-hotel-name">Mercure Hotel Leipzig (EZ inkl. Frühstück)</p>
+                                    <p class="font-semibold text-white mt-0.5" id="current-hotel-name">Загрузка отеля...</p>
                                 </div>
                             </div>
 
@@ -446,6 +424,7 @@
         let bookedHotelsCounter = 1;
         let activeClusterData = null;
         let currentLang = 'de';
+        let allOrdersList = [];
 
         const CHEF_PIN = "1234";
 
@@ -458,7 +437,13 @@
         let mastersDb = JSON.parse(localStorage.getItem('leh_masters_db')) || defaultMasters;
         let isChefAuthorized = localStorage.getItem('leh_chef_auth') === 'true';
         let activeWorker = JSON.parse(localStorage.getItem('leh_active_worker')) || null;
-        let selectedHotel = localStorage.getItem('leh_selected_hotel') || 'Mercure Hotel Leipzig (EZ inkl. Frühstück)';
+        let activeWorkerOrder = JSON.parse(localStorage.getItem('leh_active_worker_order')) || {
+            id: 101,
+            title: "Montage & Installation",
+            address: "Alexanderplatz 1, Berlin",
+            city: "Berlin"
+        };
+        let selectedHotel = localStorage.getItem('leh_selected_hotel') || null;
 
         const langFlags = {
             de: '🇩🇪 Deutsch',
@@ -479,12 +464,54 @@
         function saveState() {
             localStorage.setItem('leh_masters_db', JSON.stringify(mastersDb));
             localStorage.setItem('leh_chef_auth', isChefAuthorized ? 'true' : 'false');
-            localStorage.setItem('leh_selected_hotel', selectedHotel);
+            localStorage.setItem('leh_active_worker_order', JSON.stringify(activeWorkerOrder));
+            if (selectedHotel) {
+                localStorage.setItem('leh_selected_hotel', selectedHotel);
+            }
             if (activeWorker) {
                 localStorage.setItem('leh_active_worker', JSON.stringify(activeWorker));
             } else {
                 localStorage.removeItem('leh_active_worker');
             }
+        }
+
+        // --- DYNAMIC HOTEL GENERATOR BY CITY ---
+        function getHotelsForCity(city) {
+            const cityName = city || 'Berlin';
+            return [
+                {
+                    name: `Mercure Hotel ${cityName} ⭐⭐⭐⭐`,
+                    desc: `1.8 км от объекта • EZ inkl. Frühstück`,
+                    price: `85€ / ночь`,
+                    fullName: `Mercure Hotel ${cityName} (EZ inkl. Frühstück)`
+                },
+                {
+                    name: `B&B Hotel ${cityName} Center ⭐⭐⭐`,
+                    desc: `0.9 км от объекта • Стандартный номер`,
+                    price: `65€ / ночь`,
+                    fullName: `B&B Hotel ${cityName} Center (EZ)`
+                },
+                {
+                    name: `Ibis Budget ${cityName} ⭐⭐`,
+                    desc: `2.4 км от объекта • Эконом номер`,
+                    price: `55€ / ночь`,
+                    fullName: `Ibis Budget ${cityName}`
+                }
+            ];
+        }
+
+        function updateWorkerCardUI() {
+            if (!activeWorkerOrder) return;
+
+            document.getElementById('lbl-order-id-1').innerText = `Auftrag #${activeWorkerOrder.id}`;
+            document.getElementById('lbl-order-title').innerText = activeWorkerOrder.title || 'Montage & Installation';
+            document.getElementById('order-address-text').innerText = activeWorkerOrder.address || `${activeWorkerOrder.city || 'Berlin'}`;
+
+            if (!selectedHotel || !selectedHotel.includes(activeWorkerOrder.city)) {
+                selectedHotel = `Mercure Hotel ${activeWorkerOrder.city || 'Berlin'} (EZ inkl. Frühstück) (85€ / ночь)`;
+            }
+
+            document.getElementById('current-hotel-name').innerText = selectedHotel;
         }
 
         // --- NAVIGATION FUNCTION ---
@@ -501,6 +528,22 @@
         // --- HOTEL MODAL FUNCTIONS ---
         function openHotelModal() {
             closeModals();
+            const city = activeWorkerOrder.city || 'Berlin';
+            document.getElementById('modal-city-subtitle').innerText = `Подборка отелей рядом с объектом (${city})`;
+
+            const list = document.getElementById('hotel-options-list');
+            const hotels = getHotelsForCity(city);
+
+            list.innerHTML = hotels.map(h => `
+                <div onclick="selectHotel('${h.fullName}', '${h.price}')" class="p-3 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl cursor-pointer transition flex items-center justify-between">
+                    <div>
+                        <h4 class="text-xs font-bold text-white">${h.name}</h4>
+                        <p class="text-[11px] text-slate-400">${h.desc}</p>
+                    </div>
+                    <span class="text-xs font-bold text-emerald-400">${h.price}</span>
+                </div>
+            `).join('');
+
             document.getElementById('hotel-picker-modal').classList.remove('hidden');
         }
 
@@ -526,7 +569,7 @@
                 setLanguage(activeWorker.lang || 'de');
             }
 
-            document.getElementById('current-hotel-name').innerText = selectedHotel;
+            updateWorkerCardUI();
         }
 
         function requestTabSwitch(tab) {
@@ -603,7 +646,7 @@
             isChefAuthorized = false;
             activeWorker = null;
             saveState();
-            
+
             document.getElementById('boss-lock-icon').className = "fa-solid fa-lock text-amber-400 mr-1";
             document.getElementById('worker-lock-icon').className = "fa-solid fa-lock text-amber-400 mr-1";
             document.getElementById('btn-logout').classList.add('hidden');
@@ -637,7 +680,7 @@
         function deleteWorker(username) {
             if (confirm(`Вы действительно хотите удалить рабочего "${username}"?`)) {
                 mastersDb = mastersDb.filter(m => m.user !== username);
-                
+
                 if (activeWorker && activeWorker.user === username) {
                     activeWorker = null;
                 }
@@ -651,7 +694,7 @@
 
         function renderMastersList() {
             document.getElementById('total-masters').innerText = mastersDb.length;
-            
+
             const select = document.getElementById('master-select');
             select.innerHTML = '';
             mastersDb.forEach(m => {
@@ -759,26 +802,41 @@
             try {
                 const res = await fetch(`${API_BASE}/orders`);
                 const orders = await res.json();
-                document.getElementById('total-orders').innerText = orders ? orders.length : 0;
+                allOrdersList = orders || [];
+                document.getElementById('total-orders').innerText = allOrdersList.length;
 
                 const select = document.getElementById('start-order-select');
                 select.innerHTML = '';
                 const tbody = document.getElementById('orders-table-body');
                 tbody.innerHTML = '';
 
-                if (orders && orders.length > 0) {
-                    orders.forEach(o => {
-                        select.innerHTML += `<option value="${o.id || o.order_id}">#${o.id || o.order_id} — ${o.title || 'Montage'} (${o.city || 'Berlin'})</option>`;
+                if (allOrdersList.length > 0) {
+                    allOrdersList.forEach(o => {
+                        const id = o.id || o.order_id;
+                        const city = o.city || 'Berlin';
+                        const title = o.title || 'Montage';
+                        select.innerHTML += `<option value="${id}">#${id} — ${title} (${city})</option>`;
                         tbody.innerHTML += `
                             <tr>
-                                <td class="p-3 font-mono text-amber-400 font-bold">#${o.id || o.order_id}</td>
-                                <td class="p-3 font-semibold text-white">${o.title || 'Montage'}</td>
+                                <td class="p-3 font-mono text-amber-400 font-bold">#${id}</td>
+                                <td class="p-3 font-semibold text-white">${title}</td>
                                 <td class="p-3">${o.client_name || 'Kunde'}</td>
-                                <td class="p-3 text-slate-400">${o.city || 'Berlin'}</td>
+                                <td class="p-3 text-slate-400">${city}</td>
                                 <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] bg-amber-500/10 text-amber-400 font-bold border border-amber-500/20">${o.status || 'NEU'}</span></td>
                             </tr>
                         `;
                     });
+
+                    // Assign first order as active worker order
+                    const first = allOrdersList[0];
+                    activeWorkerOrder = {
+                        id: first.id || first.order_id,
+                        title: first.title || "Montage & Installation",
+                        address: first.address || `${first.city || 'Berlin'}, Germany`,
+                        city: first.city || 'Berlin'
+                    };
+                    saveState();
+                    updateWorkerCardUI();
                 } else {
                     select.innerHTML = '<option value="">Keine Aufträge vorhanden</option>';
                     tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-500">Bitte "Testdaten laden" klicken</td></tr>';
@@ -787,20 +845,28 @@
         }
 
         function runAiClustering() {
-            const startOrder = document.getElementById('start-order-select').value;
+            const startOrderId = document.getElementById('start-order-select').value;
             const km = document.getElementById('km-range').value;
             const master = document.getElementById('master-select').value;
 
-            if (!startOrder) {
+            if (!startOrderId) {
                 alert('Bitte zuerst Testdaten laden!');
                 return;
             }
 
+            const foundOrder = allOrdersList.find(o => (o.id || o.order_id) == startOrderId) || {
+                city: 'Berlin',
+                title: 'Montage & Installation',
+                address: 'Alexanderplatz 1, Berlin'
+            };
+
             activeClusterData = {
-                startOrder,
+                startOrder: startOrderId,
                 km,
                 master,
-                city: 'Leipzig / Berlin',
+                city: foundOrder.city || 'Berlin',
+                address: foundOrder.address || `${foundOrder.city}, Germany`,
+                title: foundOrder.title || 'Montage & Installation',
                 totalDistance: parseInt(km) * 2 + 15,
                 needsHotel: parseInt(km) >= 70
             };
@@ -810,12 +876,12 @@
                 <p class="font-bold text-white text-sm mb-2"><i class="fa-solid fa-route text-amber-400 mr-2"></i>Berechnete KI-Route im Radius von ${km} KM:</p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                     <div class="bg-slate-950 p-3 rounded border border-slate-800">
-                        <span class="text-slate-400">Erstauftrag:</span> <strong class="text-amber-400">#${startOrder}</strong><br>
+                        <span class="text-slate-400">Erstauftrag:</span> <strong class="text-amber-400">#${startOrderId} (${activeClusterData.city})</strong><br>
                         <span class="text-slate-400">Zugewiesener Handwerker:</span> <strong class="text-white">${master}</strong>
                     </div>
                     <div class="bg-slate-950 p-3 rounded border border-slate-800">
                         <span class="text-slate-400">Gesamtstrecke:</span> <strong class="text-emerald-400">${activeClusterData.totalDistance} km</strong><br>
-                        <span class="text-slate-400">Hotel-Empfehlung:</span> <strong class="${activeClusterData.needsHotel ? 'text-indigo-400 font-bold' : 'text-slate-400'}">${activeClusterData.needsHotel ? '🏨 Hotelbuchung erforderlich' : 'Nicht erforderlich'}</strong>
+                        <span class="text-slate-400">Hotel-Empfehlung:</span> <strong class="${activeClusterData.needsHotel ? 'text-indigo-400 font-bold' : 'text-slate-400'}">${activeClusterData.needsHotel ? `🏨 Hotel in ${activeClusterData.city}` : 'Nicht erforderlich'}</strong>
                     </div>
                 </div>
             `;
@@ -826,6 +892,17 @@
 
         function approveRoute() {
             if (!activeClusterData) return;
+
+            // Update assigned active order for worker
+            activeWorkerOrder = {
+                id: activeClusterData.startOrder,
+                title: activeClusterData.title,
+                address: activeClusterData.address,
+                city: activeClusterData.city
+            };
+            selectedHotel = `Mercure Hotel ${activeClusterData.city} (EZ inkl. Frühstück) (85€ / ночь)`;
+            saveState();
+            updateWorkerCardUI();
 
             if (activeClusterData.needsHotel) {
                 bookedHotelsCounter++;
@@ -842,7 +919,7 @@
                 </div>
                 <div class="flex items-center space-x-3 text-purple-300">
                     <i class="fa-brands fa-whatsapp"></i>
-                    <span><b>WhatsApp an Chef:</b> "Bestätigung: Route #${activeClusterData.startOrder} wurde gestartet."</span>
+                    <span><b>WhatsApp an Chef:</b> "Bestätigung: Route #${activeClusterData.startOrder} (${activeClusterData.city}) wurde gestartet."</span>
                 </div>
                 <div class="flex items-center space-x-3 text-blue-300">
                     <i class="fa-brands fa-whatsapp"></i>
@@ -861,7 +938,7 @@
             `;
 
             document.getElementById('timeline-panel').classList.remove('hidden');
-            alert('✅ Route freigegeben! WhatsApp-Nachrichten versendet und Hotel gebucht.');
+            alert(`✅ Route für ${activeClusterData.city} freigegeben! WhatsApp-Nachrichten versendet.`);
         }
 
         function rejectRoute() {
