@@ -2,6 +2,7 @@ fastapi
 uvicorn
 sqlalchemy
 pydantic
+pydantic-settings
 reportlab
 google-genai
 python-multipart
@@ -10,3 +11,7 @@ python-dotenv
 python-jose[cryptography]
 passlib[bcrypt]
 groq
+pillow
+httpx
+jinja2
+twilio
