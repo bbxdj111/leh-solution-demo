@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: fsm_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: fsm_db
+      POSTGRES_USER: fsm_admin
+      POSTGRES_PASSWORD: fsm_secret_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  web:
+    build: .
+    container_name: fsm_fastapi
+    restart: always
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://fsm_admin:fsm_secret_password@postgres:5432/fsm_db
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
