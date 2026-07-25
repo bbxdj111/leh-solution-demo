@@ -221,3 +221,10 @@ def send_whatsapp_invoice(
         order_id=str(order_id)
     )
     return res
+import os
+from fastapi.staticfiles import StaticFiles
+
+# Монтируем папку frontend для раздачи статических HTML/JS файлов
+frontend_dir = os.path.join(os.path.dirname(__file__), "..", "frontend")
+if os.path.exists(frontend_dir):
+    app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
