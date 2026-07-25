@@ -1,4 +1,11 @@
 import os
+import sys
+
+# Добавляем путь к текущей папке backend, чтобы импорты корректно работали и локально, и на Railway
+current_dir = os.path.dirname(os.path.abspath(__file__))
+if current_dir not in sys.path:
+    sys.path.append(current_dir)
+
 from typing import List
 from uuid import UUID
 
@@ -7,36 +14,36 @@ from fastapi.responses import Response
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 
-from database import engine, Base, get_db
+import database
 import models
 import schemas
-from auth import get_current_user, create_access_token, require_feature
+import auth
 import ai_service
 import pdf_service
 import whatsapp_service
 
 # Создание таблиц БД
-Base.metadata.create_all(bind=engine)
+database.Base.metadata.create_all(bind=database.engine)
 
 # Инициализация приложения FastAPI
 app = FastAPI(title="LEH-Solution Enterprise API", version="4.0")
 
 # --- 1. Авторизация ---
 @app.post("/api/auth/login", response_model=schemas.Token)
-def login(login_data: schemas.UserLogin, db: Session = Depends(get_db)):
+def login(login_data: schemas.UserLogin, db: Session = Depends(database.get_db)):
     user = db.query(models.User).filter(models.User.email == login_data.email).first()
     if not user or user.hashed_password != login_data.password:
         raise HTTPException(status_code=400, detail="Неверный email или пароль")
     
-    access_token = create_access_token(data={"sub": str(user.id)})
+    access_token = auth.create_access_token(data={"sub": str(user.id)})
     return {"access_token": access_token, "token_type": "bearer"}
 
 # --- 2. Заказы (Starter Tier) ---
 @app.post("/api/orders", response_model=schemas.OrderResponse)
 def create_order(
     order_in: schemas.OrderCreate, 
-    db: Session = Depends(get_db), 
-    current_user: models.User = Depends(get_current_user)
+    db: Session = Depends(database.get_db), 
+    current_user: models.User = Depends(auth.get_current_user)
 ):
     new_order = models.Order(
         title=order_in.title,
@@ -52,8 +59,8 @@ def create_order(
 
 @app.get("/api/orders", response_model=List[schemas.OrderResponse])
 def get_my_orders(
-    db: Session = Depends(get_db), 
-    current_user: models.User = Depends(get_current_user)
+    db: Session = Depends(database.get_db), 
+    current_user: models.User = Depends(auth.get_current_user)
 ):
     orders = db.query(models.Order).filter(models.Order.assigned_to == current_user.id).all()
     return orders
@@ -62,8 +69,8 @@ def get_my_orders(
 def update_order_status(
     order_id: UUID, 
     status_update: schemas.OrderStatusUpdate, 
-    db: Session = Depends(get_db), 
-    current_user: models.User = Depends(get_current_user)
+    db: Session = Depends(database.get_db), 
+    current_user: models.User = Depends(auth.get_current_user)
 ):
     order = db.query(models.Order).filter(models.Order.id == order_id).first()
     if not order:
@@ -78,7 +85,7 @@ def update_order_status(
 @app.post("/api/geo/track")
 def receive_geo_track(
     location: schemas.GeoLocation, 
-    current_user: models.User = Depends(get_current_user)
+    current_user: models.User = Depends(auth.get_current_user)
 ):
     print(f"📍 GPS Мастера {current_user.email}: {location.latitude}, {location.longitude}")
     return {"status": "ok"}
@@ -87,23 +94,23 @@ def receive_geo_track(
 @app.get(
     "/api/van-inventory", 
     response_model=List[schemas.VanInventoryResponse],
-    dependencies=[Depends(require_feature("van_stock"))]
+    dependencies=[Depends(auth.require_feature("van_stock"))]
 )
 def get_my_van_stock(
-    db: Session = Depends(get_db), 
-    current_user: models.User = Depends(get_current_user)
+    db: Session = Depends(database.get_db), 
+    current_user: models.User = Depends(auth.get_current_user)
 ):
     stock = db.query(models.VanInventory).filter(models.VanInventory.user_id == current_user.id).all()
     return stock
 
 @app.post(
     "/api/van-inventory/consume", 
-    dependencies=[Depends(require_feature("van_stock"))]
+    dependencies=[Depends(auth.require_feature("van_stock"))]
 )
 def consume_part(
     consume_data: schemas.VanStockConsume, 
-    db: Session = Depends(get_db), 
-    current_user: models.User = Depends(get_current_user)
+    db: Session = Depends(database.get_db), 
+    current_user: models.User = Depends(auth.get_current_user)
 ):
     item_in_van = db.query(models.VanInventory).filter(
         models.VanInventory.user_id == current_user.id,
@@ -126,11 +133,11 @@ def consume_part(
 @app.post(
     "/api/ai/translate", 
     response_model=schemas.TranslateResponse,
-    dependencies=[Depends(require_feature("ocr"))]
+    dependencies=[Depends(auth.require_feature("ocr"))]
 )
 def translate_note(
     payload: schemas.TranslateRequest,
-    current_user: models.User = Depends(get_current_user)
+    current_user: models.User = Depends(auth.get_current_user)
 ):
     translated = ai_service.translate_text(payload.text, payload.target_lang)
     return {
@@ -142,11 +149,11 @@ def translate_note(
 # --- 6. AI Copilot: Gemini Vision OCR Сканер (Pro Tier) ---
 @app.post(
     "/api/ai/ocr",
-    dependencies=[Depends(require_feature("ocr"))]
+    dependencies=[Depends(auth.require_feature("ocr"))]
 )
 async def scan_label_ocr(
     file: UploadFile = File(...),
-    current_user: models.User = Depends(get_current_user)
+    current_user: models.User = Depends(auth.get_current_user)
 ):
     image_bytes = await file.read()
     result = ai_service.scan_equipment_label(image_bytes)
@@ -155,11 +162,11 @@ async def scan_label_ocr(
 # --- 7. AI Quality Gate: Проверка фотоотчётов (Enterprise Tier) ---
 @app.post(
     "/api/ai/quality-check",
-    dependencies=[Depends(require_feature("ai_copilot"))]
+    dependencies=[Depends(auth.require_feature("ai_copilot"))]
 )
 async def check_photo_quality(
     file: UploadFile = File(...),
-    current_user: models.User = Depends(get_current_user)
+    current_user: models.User = Depends(auth.get_current_user)
 ):
     image_bytes = await file.read()
     result = ai_service.validate_repair_photo(image_bytes)
@@ -168,11 +175,11 @@ async def check_photo_quality(
 # --- 8. AI Voice-to-Task: Голосовые отчёты (Enterprise Tier) ---
 @app.post(
     "/api/ai/voice-report",
-    dependencies=[Depends(require_feature("ai_copilot"))]
+    dependencies=[Depends(auth.require_feature("ai_copilot"))]
 )
 async def process_voice_report(
     file: UploadFile = File(...),
-    current_user: models.User = Depends(get_current_user)
+    current_user: models.User = Depends(auth.get_current_user)
 ):
     audio_bytes = await file.read()
     result = ai_service.process_voice_note(audio_bytes, mime_type=file.content_type or "audio/wav")
@@ -182,7 +189,7 @@ async def process_voice_report(
 @app.get("/api/invoices/generate/{order_id}")
 def download_invoice(
     order_id: UUID, 
-    db: Session = Depends(get_db)
+    db: Session = Depends(database.get_db)
 ):
     order = db.query(models.Order).filter(models.Order.id == order_id).first()
     title = order.title if order else "Сервисный ремонт оборудования"
@@ -213,8 +220,8 @@ def send_whatsapp_invoice(
     order_id: UUID,
     phone: str = "+4915112345678",
     client_name: str = "Клиент",
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user)
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(auth.get_current_user)
 ):
     order = db.query(models.Order).filter(models.Order.id == order_id).first()
     order_title = order.title if order else "Сервисные работы"
@@ -227,12 +234,11 @@ def send_whatsapp_invoice(
     )
     return res
 
-# --- 11. Безопасное монтирование фронтенда (в самом конце!) ---
+# --- 11. Раздача фронтенда (Статические файлы HTML/JS) ---
 possible_paths = [
-    os.path.join(os.path.dirname(__file__), "..", "frontend"),
-    os.path.join(os.path.dirname(__file__), "frontend"),
-    os.path.join(os.getcwd(), "frontend"),
-    os.getcwd()
+    os.path.join(current_dir, "..", "frontend"),
+    os.path.join(current_dir, "frontend"),
+    os.path.join(os.getcwd(), "frontend")
 ]
 
 frontend_path = None
