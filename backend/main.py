@@ -1,8 +1,11 @@
-from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File
-from fastapi.responses import Response
-from sqlalchemy.orm import Session
+import os
 from typing import List
 from uuid import UUID
+
+from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File
+from fastapi.responses import Response
+from fastapi.staticfiles import StaticFiles
+from sqlalchemy.orm import Session
 
 from database import engine, Base, get_db
 import models
@@ -12,9 +15,11 @@ import ai_service
 import pdf_service
 import whatsapp_service
 
+# Создание таблиц БД
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="FSM Enterprise API", version="4.0")
+# Инициализация приложения FastAPI
+app = FastAPI(title="LEH-Solution Enterprise API", version="4.0")
 
 # --- 1. Авторизация ---
 @app.post("/api/auth/login", response_model=schemas.Token)
@@ -221,10 +226,20 @@ def send_whatsapp_invoice(
         order_id=str(order_id)
     )
     return res
-import os
-from fastapi.staticfiles import StaticFiles
 
-# Монтируем папку frontend для раздачи статических HTML/JS файлов
-frontend_dir = os.path.join(os.path.dirname(__file__), "..", "frontend")
-if os.path.exists(frontend_dir):
-    app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
+# --- 11. Безопасное монтирование фронтенда (в самом конце!) ---
+possible_paths = [
+    os.path.join(os.path.dirname(__file__), "..", "frontend"),
+    os.path.join(os.path.dirname(__file__), "frontend"),
+    os.path.join(os.getcwd(), "frontend"),
+    os.getcwd()
+]
+
+frontend_path = None
+for p in possible_paths:
+    if os.path.exists(p) and os.path.exists(os.path.join(p, "index.html")):
+        frontend_path = p
+        break
+
+if frontend_path:
+    app.mount("/", StaticFiles(directory=frontend_path, html=True), name="static")
