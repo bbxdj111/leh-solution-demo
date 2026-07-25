@@ -1,69 +1,81 @@
 import os
-from groq import Groq
+import base64
+from google import genai
+from google.genai import types
 
-GROQ_API_KEY = "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"
+# Инициализация клиента Gemini
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 
-try:
-    client = Groq(api_key=GROQ_API_KEY)
-except Exception as e:
-    client = None
-    print(f"Ошибка инициализации Groq: {e}")
+def get_gemini_client():
+    if not GEMINI_API_KEY:
+        raise ValueError("GEMINI_API_KEY не установлен в файле .env")
+    return genai.Client(api_key=GEMINI_API_KEY)
 
-
-def translate_text_with_ai(text: str, target_language: str) -> str:
-    """Универсальный переводчик через Groq AI"""
-    if not text or not client:
-        return text
-
+# --- 1. AI Переводчик заметок (DE / UA / EN) ---
+def translate_text(text: str, target_language: str = "DE") -> str:
+    """
+    Переводит технические заметки мастера на целевой язык (по умолчанию немецкий DE).
+    """
     try:
+        client = get_gemini_client()
         prompt = f"""
-        Ты — профессиональный технический переводчик.
-        Переведи следующий текст на язык: {target_language}.
-        Если текст УЖЕ написан на языке {target_language}, верни его без изменений.
-        ВАЖНО: Верни ТОЛЬКО готовый текст. Без пояснений, вводных слов и кавычек.
-
+        Ты профессиональный технический переводчик для выездных сервисных инженеров.
+        Переведи следующий текст на язык '{target_language}'. 
+        Сохраняй технические термины, названия деталей и краткость.
         Текст для перевода:
-        {text}
+        "{text}"
         """
-
-        chat_completion = client.chat.completions.create(
-            messages=[{"role": "user", "content": prompt}],
-            model="llama-3.3-70b-versatile",
-            temperature=0.1,
+        
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt
         )
-
-        return chat_completion.choices[0].message.content.strip()
-
+        return response.text.strip()
     except Exception as e:
-        print(f"Ошибка перевода через Groq: {e}")
-        return text
+        print(f"Ошибка AI перевода: {e}")
+        return f"[Ошибка AI перевода]: {text}"
 
-
-def analyze_order_with_ai(title: str, description: str) -> str:
-    """Анализ заявки через Groq"""
-    if not client:
-        return f"1. Приоритет: Средний\n2. Причина: Проблема с '{title}'."
-
+# --- 2. Gemini Vision OCR: Сканер шильдиков и оборудования ---
+def scan_equipment_label(image_bytes: bytes) -> dict:
+    """
+    Анализирует фотографию шильдика/таблички оборудования через Gemini Vision
+    и извлекает модель, серийный номер и производителя.
+    """
     try:
-        prompt = f"""
-        Проанализируй проблему выездного ремонта:
-        Заголовок: {title}
-        Описание: {description}
+        client = get_gemini_client()
+        
+        prompt = """
+        Проанализируй изображение шильдика/паспортной таблички оборудования.
+        Найди и извлеки следующие данные в формате текста:
+        - Производитель (Brand/Manufacturer)
+        - Модель (Model)
+        - Серийный номер (Serial Number / S/N)
+        - Сетевое напряжение / Мощность (Specs)
 
-        Дай краткий и четкий ответ по пунктам на русском языке:
-        1. Приоритет (Низкий/Средний/Высокий)
-        2. Возможная причина
-        3. Рекомендуемый специалист или инструмент
+        Верни ответ строго в формате:
+        Производитель: <текст>
+        Модель: <текст>
+        Серийный номер: <текст>
+        Характеристики: <текст>
         """
 
-        chat_completion = client.chat.completions.create(
-            messages=[{"role": "user", "content": prompt}],
-            model="llama-3.3-70b-versatile",
-            temperature=0.3,
+        image_part = types.Part.from_bytes(
+            data=image_bytes,
+            mime_type="image/jpeg"
         )
 
-        return chat_completion.choices[0].message.content.strip()
-
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=[image_part, prompt]
+        )
+        
+        return {
+            "status": "success",
+            "raw_text": response.text.strip()
+        }
     except Exception as e:
-        print(f"Ошибка анализа: {e}")
-        return "Анализ недоступен."
+        print(f"Ошибка Gemini Vision OCR: {e}")
+        return {
+            "status": "error",
+            "message": f"Не удалось распознать текст: {str(e)}"
+        }
